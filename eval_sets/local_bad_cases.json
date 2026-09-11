@@ -1,0 +1,61 @@
+[
+  {
+    "case_id": "bad_saas_webhook_retry_doc",
+    "source_case_id": "saas_webhook_retry_doc",
+    "query": "系统会不会重试失败的 Webhook 事件？",
+    "bad_case_reasons": [
+      "关键词覆盖率低于阈值：0.3333 < 0.7"
+    ],
+    "grading_notes": "关键词覆盖率低于阈值：0.3333 < 0.7",
+    "observed_hit_type": "faq_direct",
+    "observed_effective_source": "integration",
+    "observed_prompt_profile": "troubleshooting_steps",
+    "observed_keyword_coverage": 0.3333,
+    "observed_answer_preview": "先检查回调地址是否公网可访问、签名密钥是否一致、响应状态码是否为 2xx，再查看事件重试记录。",
+    "scenario_id": "saas_support",
+    "source_filter": "integration",
+    "tenant_id": "default",
+    "dataset_id": "default",
+    "visibility": "public",
+    "user_role": "public",
+    "expected_source_contains": [
+      "webhook.md",
+      "有限次数重试"
+    ],
+    "expected_keywords": [
+      "失败事件",
+      "有限次数",
+      "重试"
+    ]
+  },
+  {
+    "case_id": "bad_equipment_alarm_record_doc",
+    "source_case_id": "equipment_alarm_record_doc",
+    "query": "处理温度告警时要记录哪些信息？",
+    "bad_case_reasons": [
+      "关键词覆盖率低于阈值：0.0 < 0.7"
+    ],
+    "grading_notes": "关键词覆盖率低于阈值：0.0 < 0.7",
+    "observed_hit_type": "faq_direct",
+    "observed_effective_source": "alarm",
+    "observed_prompt_profile": "troubleshooting_steps",
+    "observed_keyword_coverage": 0.0,
+    "observed_answer_preview": "先确认温度传感器读数和设备负载，检查散热、润滑和环境温度；如持续超限，应按 SOP 降载或停机并通知值班负责人。",
+    "scenario_id": "equipment_ops",
+    "source_filter": "alarm",
+    "tenant_id": "default",
+    "dataset_id": "default",
+    "visibility": "public",
+    "user_role": "public",
+    "expected_source_contains": [
+      "temperature_alarm.md",
+      "处理过程中"
+    ],
+    "expected_keywords": [
+      "告警时间",
+      "设备编号",
+      "当前负载",
+      "复测结果"
+    ]
+  }
+]

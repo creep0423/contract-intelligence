@@ -1,0 +1,174 @@
+name: contract-intelligence
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: contract-intelligence-mysql
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-contract_intelligence}
+    ports:
+      - "${MYSQL_PUBLISHED_PORT:-23307}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks: [contract-intelligence]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: contract-intelligence-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PUBLISHED_PORT:-16379}:6379"
+    volumes:
+      - redis_data:/data
+    networks: [contract-intelligence]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.18
+    container_name: contract-intelligence-etcd
+    restart: unless-stopped
+    environment:
+      ETCD_AUTO_COMPACTION_MODE: revision
+      ETCD_AUTO_COMPACTION_RETENTION: "1000"
+      ETCD_QUOTA_BACKEND_BYTES: "4294967296"
+      ETCD_SNAPSHOT_COUNT: "50000"
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    volumes:
+      - etcd_data:/etcd
+    networks: [contract-intelligence]
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health", "--endpoints=http://127.0.0.1:2379"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 20
+    stop_grace_period: 60s
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    container_name: contract-intelligence-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
+    command: minio server /data --console-address ":9001"
+    ports:
+      - "${MINIO_API_PUBLISHED_PORT:-19000}:9000"
+      - "${MINIO_CONSOLE_PUBLISHED_PORT:-19001}:9001"
+    volumes:
+      - minio_data:/data
+    networks: [contract-intelligence]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    stop_grace_period: 60s
+
+  milvus:
+    image: milvusdb/milvus:v2.5.15
+    container_name: contract-intelligence-milvus
+    restart: unless-stopped
+    command: ["milvus", "run", "standalone"]
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+      MINIO_ACCESS_KEY_ID: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
+      MINIO_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
+      MINIO_REGION: us-east-1
+    volumes:
+      - milvus_data:/var/lib/milvus
+    ports:
+      - "${MILVUS_PUBLISHED_PORT:-29530}:19530"
+      - "${MILVUS_HEALTH_PUBLISHED_PORT:-19091}:9091"
+    networks: [contract-intelligence]
+    depends_on:
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "--max-time", "10", "http://127.0.0.1:9091/healthz"]
+      interval: 15s
+      start_period: 180s
+      timeout: 15s
+      retries: 12
+    stop_grace_period: 120s
+
+  api:
+    image: contract-intelligence-api:latest
+    build:
+      context: .
+      args:
+        APP_BASE_IMAGE: ${APP_BASE_IMAGE:-contract-intelligence-base:py312}
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
+        PYTORCH_INDEX_URL: ${PYTORCH_INDEX_URL:-https://download.pytorch.org/whl/cpu}
+    container_name: contract-intelligence-api
+    restart: unless-stopped
+    env_file:
+      - .env.contract-intelligence
+    environment:
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY:-}
+      ADMIN_API_TOKEN: ${ADMIN_API_TOKEN:-}
+      CONTRACT_TRUSTED_UPSTREAM_TOKEN: ${CONTRACT_TRUSTED_UPSTREAM_TOKEN:-}
+    ports:
+      - "${API_PORT:-18000}:8000"
+    volumes:
+      - contract_files:/app/data/contracts
+      - runtime_reports:/app/reports
+      - runtime_logs:/app/logs
+      - ./models:/app/models:ro
+      - ./scenarios:/app/scenarios:ro
+      - ./static:/app/static:ro
+    networks: [contract-intelligence]
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      milvus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 120s
+      retries: 5
+
+networks:
+  contract-intelligence:
+    name: contract-intelligence-network
+
+volumes:
+  mysql_data:
+    name: contract-intelligence-mysql-data
+  redis_data:
+    name: contract-intelligence-redis-data
+  etcd_data:
+    name: contract-intelligence-etcd-data
+  minio_data:
+    name: contract-intelligence-minio-data
+  milvus_data:
+    name: contract-intelligence-milvus-data
+  contract_files:
+    name: contract-intelligence-contract-files
+  runtime_reports:
+    name: contract-intelligence-runtime-reports
+  runtime_logs:
+    name: contract-intelligence-runtime-logs

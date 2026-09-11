@@ -1,0 +1,10 @@
+[
+  {"case_id":"faq_vpn_paraphrase","question":"VPN连接失败应该怎么处理","scenario_id":"enterprise_knowledge","source_filter":"it","expected_faq_direct":true},
+  {"case_id":"faq_onboarding_paraphrase","question":"新员工入职第一天要完成什么","scenario_id":"enterprise_knowledge","source_filter":"hr","expected_faq_direct":true},
+  {"case_id":"faq_expense_materials_paraphrase","question":"员工报销要保存哪些材料","scenario_id":"enterprise_knowledge","source_filter":"finance","expected_faq_direct":true},
+  {"case_id":"faq_permission_reclaim_paraphrase","question":"员工离职后系统权限怎么收回","scenario_id":"enterprise_knowledge","source_filter":"it","expected_faq_direct":true},
+  {"case_id":"near_vpn_password_reset","question":"VPN连不上时是否必须重置所有业务系统密码","scenario_id":"enterprise_knowledge","source_filter":"it","expected_faq_direct":false,"false_positive_cost":6},
+  {"case_id":"near_onboarding_all_approval","question":"新人入职是否必须第一天完成全部审批","scenario_id":"enterprise_knowledge","source_filter":"hr","expected_faq_direct":false,"false_positive_cost":5},
+  {"case_id":"near_expense_tax_risk","question":"报销材料齐全是否代表不存在税务风险","scenario_id":"enterprise_knowledge","source_filter":"finance","expected_faq_direct":false,"false_positive_cost":6},
+  {"case_id":"near_permission_retention","question":"员工离职后的权限回收记录应该保存多久","scenario_id":"enterprise_knowledge","source_filter":"it","expected_faq_direct":false,"false_positive_cost":5}
+]

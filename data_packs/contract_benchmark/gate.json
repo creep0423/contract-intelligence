@@ -1,0 +1,13 @@
+{
+  "minimum_field_accuracy": 0.70,
+  "minimum_obligation_recall": 0.70,
+  "minimum_risk_precision": 0.60,
+  "minimum_citation_accuracy": 0.80,
+  "maximum_hallucination_rate": 0.05,
+  "maximum_no_evidence_failure_rate": 0.05,
+  "minimum_high_critical_risk_recall": 0.80,
+  "hard_fail_on_cross_tenant_leak": true,
+  "hard_fail_on_fake_citation": true,
+  "hard_fail_on_no_evidence_hallucination": true,
+  "hard_fail_on_conflict_priority_inference": true
+}

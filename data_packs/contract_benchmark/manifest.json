@@ -1,0 +1,17 @@
+{
+  "benchmark_version": "contract-benchmark-v1.0.0",
+  "dataset_version": "small-synthetic-v1.0.0",
+  "name": "Contract Intelligence Small Development Benchmark",
+  "description": "用于开发回归的十个合成合同 case；不代表真实企业 UAT。",
+  "cases_file": "annotations/cases.json",
+  "offline_predictions_file": "predictions/offline_baseline.json",
+  "prompt_version": "contract-prompts-frozen-2026-09-10",
+  "retrieval_version": "contract-retrieval-cache-v2",
+  "model_identifier": "qwen-plus-configured-not-invoked-by-default",
+  "supported_case_types": [
+    "STANDARD", "LONG_DOCUMENT", "MULTI_PAYMENT", "EVENT_TRIGGERED", "AUTO_RENEWAL",
+    "AMBIGUOUS_ACCEPTANCE", "SUPPLEMENTARY_AGREEMENT", "MULTIPLE_AMENDMENTS",
+    "CONFLICTING_TERMS", "MISSING_CLAUSE", "AMBIGUOUS_TIME", "TABLE_HEAVY",
+    "SCANNED_DOCUMENT", "ADVERSARIAL_INSTRUCTION", "UNBALANCED_LIABILITY", "NOISY_FORMATTING"
+  ]
+}

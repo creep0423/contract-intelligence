@@ -1,0 +1,52 @@
+{
+  "case_id": "UAT-ANON-001",
+  "contract_id": "stable-anonymous-id",
+  "contract_type": "procurement",
+  "difficulty": "medium",
+  "tags": ["STANDARD"],
+  "synthetic": false,
+  "suites": ["full"],
+  "documents": ["contracts/anonymized-contract.pdf"],
+  "sources": [
+    {
+      "source_id": "src-payment-1",
+      "document_name": "anonymized-contract.pdf",
+      "document_version": "1.0",
+      "page": 3,
+      "clause_no": "4.1",
+      "text_snippet": "验收合格后30日内支付"
+    }
+  ],
+  "gold_fields": [
+    {
+      "name": "contract_amount",
+      "status": "EXPECTED_VALUE",
+      "value": "1000000 CNY",
+      "match_type": "numeric",
+      "source_references": ["src-payment-1"]
+    },
+    {
+      "name": "automatic_renewal",
+      "status": "NOT_PRESENT",
+      "match_type": "normalized",
+      "source_references": []
+    }
+  ],
+  "gold_obligations": [],
+  "gold_time_rules": [],
+  "gold_risks": [],
+  "gold_qa": [],
+  "gold_conflicts": [],
+  "reviewer": {
+    "reviewer_id": "reviewer-02",
+    "annotation_version": "1.0",
+    "adjudicated_result": false,
+    "usefulness": null,
+    "correctness": null,
+    "actionability": null,
+    "clarity": null,
+    "trust": null,
+    "would_rely": null
+  },
+  "notes": "提交前必须脱敏；不要填写 reviewer 真名"
+}

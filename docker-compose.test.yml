@@ -1,0 +1,22 @@
+name: contract-intelligence-test
+
+services:
+  mysql-test:
+    image: mysql:8.4
+    container_name: contract-intelligence-test-mysql
+    restart: "no"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${TEST_MYSQL_PASSWORD:?TEST_MYSQL_PASSWORD is required}
+      MYSQL_DATABASE: ${TEST_MYSQL_DATABASE:-contract_intelligence_test}
+    ports:
+      - "${TEST_MYSQL_PUBLISHED_PORT:-23308}:3306"
+    tmpfs:
+      - /var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${TEST_MYSQL_PASSWORD:?TEST_MYSQL_PASSWORD is required}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30

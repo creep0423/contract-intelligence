@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>知契 · 企业合同履约与风险智能</title>
+  <meta name="description" content="面向企业合同履约、义务、风险与原文证据分析的智能工作平台。" />
+  <meta name="application-name" content="知契" />
+  <link href="/static/css/fontawesome-shim.css?v=2" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/base.css?v=contract-v1" />
+  <link rel="stylesheet" href="/static/css/components.css?v=contract-v1" />
+  <link rel="stylesheet" href="/static/css/contracts.css?v=contract-v1" />
+  <script src="/static/js/vendor/marked.min.js"></script>
+  <script src="/static/js/vendor/purify.min.js"></script>
+</head>
+<body class="contract-body">
+  <header class="contract-topbar">
+    <div class="contract-brand"><span class="brand-symbol"><i class="fas fa-shield-alt"></i></span><div><strong>知契</strong><small>Contract Intelligence · 看清条款，掌握履约，提前发现风险。</small></div></div>
+    <nav><a href="/admin" class="btn btn-ghost">运行状态</a><button id="openUpload" class="btn btn-primary"><i class="fas fa-upload"></i> 上传合同</button></nav>
+  </header>
+
+  <main class="contract-shell">
+    <aside class="contract-sidebar">
+      <div class="sidebar-heading"><div><h2>合同台账</h2><span id="contractCount">0 份合同</span></div><button id="refreshList" class="btn btn-icon" title="刷新"><i class="fas fa-sync-alt"></i></button></div>
+      <div class="contract-filters"><select id="statusFilter" class="form-select"><option value="">全部状态</option><option value="active">履行中</option><option value="expired">已到期</option><option value="terminated">已终止</option></select><select id="riskFilter" class="form-select"><option value="">全部风险</option><option value="critical">重大</option><option value="high">高</option><option value="medium">中</option><option value="low">低</option></select></div>
+      <div id="contractList" class="contract-list"><div class="empty-state">正在加载合同…</div></div>
+    </aside>
+
+    <section class="contract-main">
+      <div id="emptyDetail" class="detail-empty"><i class="fas fa-file-contract"></i><h1>选择或上传一份合同</h1><p>基于合同原文完成解析、抽取、义务识别、风险分析和有据问答。</p></div>
+      <div id="contractDetail" class="contract-detail hidden">
+        <header class="detail-header"><div><div class="detail-kicker">合同详情</div><h1 id="detailName">-</h1><div id="detailMeta" class="detail-meta"></div></div><div class="detail-actions"><span id="processBadge" class="status-badge"></span><button id="reanalyzeBtn" class="btn btn-secondary"><i class="fas fa-search"></i> 重新分析</button></div></header>
+        <section id="riskOverview" class="metric-grid"></section>
+        <nav id="detailTabs" class="detail-tabs"><button data-tab="overview" class="active">概览</button><button data-tab="timeline">时间轴</button><button data-tab="obligations">履约事项</button><button data-tab="risks">风险</button><button data-tab="qa">合同问答</button><button data-tab="documents">文件与记录</button></nav>
+
+        <div id="tab-overview" class="tab-panel active"><div class="two-column"><section class="card section-card"><h3>关键字段</h3><div id="basicFields" class="key-value-grid"></div></section><section class="card section-card"><h3>合同摘要</h3><div id="summarySections" class="summary-list"></div></section></div></div>
+        <div id="tab-timeline" class="tab-panel"><section class="card section-card"><div class="section-title-row"><div><h3>履约时间轴</h3><span id="workdayNote" class="helper-text"></span></div><button id="openEvent" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i> 记录履约事件</button></div><div id="timeline" class="timeline"></div></section></div>
+        <div id="tab-obligations" class="tab-panel"><section class="card section-card"><h3>履约事项</h3><div class="table-scroll"><table><thead><tr><th>事项</th><th>责任方</th><th>类型</th><th>计划时间</th><th>状态</th><th>风险</th><th>依据</th><th>操作</th></tr></thead><tbody id="obligationRows"></tbody></table></div></section></div>
+        <div id="tab-risks" class="tab-panel"><section class="card section-card"><h3>风险清单</h3><div id="riskCards" class="risk-list"></div></section></div>
+        <div id="tab-qa" class="tab-panel"><section class="card qa-card"><div id="qaMessages" class="qa-messages"><div class="qa-welcome">针对当前合同提问。回答仅使用本合同内容，并展示原文来源。</div></div><div class="qa-composer"><textarea id="qaInput" class="form-textarea" placeholder="例如：甲方应在什么时候支付尾款？"></textarea><button id="qaSend" class="btn btn-primary">发送</button></div></section></div>
+        <div id="tab-documents" class="tab-panel"><div class="two-column"><section class="card section-card"><h3>合同文件</h3><div id="documentList" class="record-list"></div></section><section class="card section-card"><h3>分析记录</h3><div id="analysisList" class="record-list"></div></section></div></div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="uploadDialog" class="contract-dialog"><form id="uploadForm" method="dialog"><div class="dialog-header"><h2>上传合同</h2><button type="button" data-close class="btn btn-icon"><i class="fas fa-times"></i></button></div><div class="dialog-body"><label class="form-group"><span class="form-label">合同文件</span><input name="file" type="file" class="form-input" required accept=".pdf,.docx,.doc,.txt,.md,.xlsx,.xls,.csv" /></label><label class="form-group"><span class="form-label">合同名称（选填）</span><input name="contract_name" class="form-input" placeholder="默认使用文件名" /></label><div class="form-row"><label class="form-group"><span class="form-label">合同类型</span><input name="contract_type" class="form-input" placeholder="采购 / 销售 / 服务" /></label><label class="form-group"><span class="form-label">文档版本</span><input name="document_version" class="form-input" value="1" /></label></div><label class="check-row"><input name="auto_analyze" type="checkbox" checked /> 上传后自动执行合同分析</label><div id="uploadStatus" class="helper-text"></div></div><div class="dialog-footer"><button type="button" data-close class="btn btn-secondary">取消</button><button type="submit" class="btn btn-primary">上传并处理</button></div></form></dialog>
+  <dialog id="sourceDialog" class="contract-dialog source-dialog"><div class="dialog-header"><h2>合同原文依据</h2><button type="button" data-close class="btn btn-icon"><i class="fas fa-times"></i></button></div><div id="sourceBody" class="dialog-body"></div></dialog>
+  <dialog id="eventDialog" class="contract-dialog"><form id="eventForm" method="dialog"><div class="dialog-header"><h2>记录履约事件</h2><button type="button" data-close class="btn btn-icon"><i class="fas fa-times"></i></button></div><div class="dialog-body"><label class="form-group"><span class="form-label">事件类型</span><select name="event_type" class="form-select" required><option value="delivery_completed">完成交付</option><option value="acceptance_started">开始验收</option><option value="acceptance_passed">验收通过</option><option value="acceptance_failed">验收未通过</option><option value="invoice_received">收到发票</option><option value="payment_completed">完成付款</option><option value="milestone_completed">完成里程碑</option><option value="notice_sent">发出通知</option><option value="contract_terminated">合同终止</option><option value="custom">其他事件</option></select></label><label class="form-group"><span class="form-label">事件日期</span><input name="event_date" type="date" class="form-input" required /></label><label class="form-group"><span class="form-label">说明</span><textarea name="description" class="form-textarea" placeholder="仅记录必要的履约事实，不粘贴完整合同内容"></textarea></label><div id="eventStatus" class="helper-text"></div></div><div class="dialog-footer"><button type="button" data-close class="btn btn-secondary">取消</button><button type="submit" class="btn btn-primary">保存并重新计算</button></div></form></dialog>
+  <div id="toast" class="toast hidden"></div>
+  <script src="/static/js/contracts.js?v=contract-v1"></script>
+</body>
+</html>
