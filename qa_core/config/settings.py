@@ -13,13 +13,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 def _discover_project_root() -> Path:
-    """定位真实仓库根目录，保证 codealong 章节也复用主项目资源。
+    """根据产品源码与配置目录定位仓库根目录。
 
     调用顺序：启动配置或前置校验 -> _discover_project_root()。
     """
     current = Path(__file__).resolve()
     for parent in current.parents:
-        if (parent / "qa_core").exists() and (parent / "scenarios").exists() and (parent / "mkdocs.yml").exists():
+        if (parent / "qa_core").exists() and (parent / "scenarios").exists() and (parent / "requirements.txt").exists():
             return parent
     return current.parents[2]
 

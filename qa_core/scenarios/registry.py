@@ -1,8 +1,7 @@
-"""多业务场景注册与解析。
+"""Contract Intelligence 场景注册与解析。
 
-当前项目的 RAG 主链路是统一的，但每个业务场景有独立的 Milvus 集合、source 白名单、
-资料目录和 FAQ 文件。新增或调整场景时，优先改 `scenario.toml`，
-不要把业务分类硬编码进 Python 主链路。
+产品运行时只加载合同履约风控场景。历史场景配置仅位于测试夹具中，用于验证底层
+场景解析、source 归一化和兼容性契约，不参与运行时解析。
 """
 
 from __future__ import annotations
@@ -29,7 +28,7 @@ REQUIRED_SCENARIO_FIELDS = (
     "doc_collection",
 )
 
-# 本版本只启用合同履约风控场景。其他目录作为历史模板保留，不参与运行时加载。
+# 本版本只启用合同履约风控场景。
 ACTIVE_SCENARIO_IDS = frozenset({"tender_contract_risk"})
 
 
@@ -78,8 +77,6 @@ class ScenarioDefinition:
     source_labels: dict[str, str] = field(default_factory=dict)
     source_patterns: dict[str, str] = field(default_factory=dict)
     sample_questions: list[str] = field(default_factory=list)
-    resume_project_name: str = ""
-    resume_keywords: list[str] = field(default_factory=list)
 
     @classmethod
     def from_mapping(cls, payload: dict[str, Any], *, base_dir: Path | None = None) -> "ScenarioDefinition":
@@ -143,8 +140,6 @@ class ScenarioDefinition:
             source_labels={str(k): str(v) for k, v in dict(payload.get("source_labels", {})).items()},
             source_patterns={str(k): str(v) for k, v in dict(payload.get("source_patterns", {})).items()},
             sample_questions=[str(item) for item in payload.get("sample_questions", [])],
-            resume_project_name=str(payload.get("resume_project_name") or payload.get("display_name") or scenario_id),
-            resume_keywords=[str(item) for item in payload.get("resume_keywords", [])],
         )
 
     def compiled_source_patterns(self) -> dict[str, re.Pattern[str]]:
@@ -220,8 +215,6 @@ class ScenarioDefinition:
             "support_contact": self.support_contact,
             "source_options": self.source_options(),
             "sample_questions": self.sample_questions,
-            "resume_project_name": self.resume_project_name,
-            "resume_keywords": self.resume_keywords,
         }
         if include_internal:
             payload.update(
@@ -278,7 +271,7 @@ class ScenarioRegistry:
         loaded: dict[str, ScenarioDefinition] = {}
         if not self.config_dir.exists():
             raise RuntimeError(f"场景配置目录不存在：{self.config_dir}")
-        # 历史配置仍可供离线兼容测试读取；生产运行时集合由 list_runtime_scenarios 限定。
+        # 生产配置目录只包含合同场景；测试可显式传入兼容夹具目录。
         for config_path in sorted(self.config_dir.glob("*/scenario.toml")):
             # 每个 TOML 文件代表一个独立业务场景，解析结果以 scenario_id 为 key 建立索引
             payload = tomllib.loads(config_path.read_text(encoding="utf-8"))
@@ -300,7 +293,7 @@ class ScenarioRegistry:
         return [self.scenarios[key] for key in sorted(self.scenarios)]
 
     def list_runtime_scenarios(self) -> list[ScenarioDefinition]:
-        """返回产品运行时唯一启用的合同场景；历史模板仍可供离线工具读取。"""
+        """返回产品运行时唯一启用的合同场景。"""
         return [self.scenarios[key] for key in sorted(ACTIVE_SCENARIO_IDS) if key in self.scenarios]
 
     def resolve(self, scenario_id: str | None = None) -> ScenarioDefinition:

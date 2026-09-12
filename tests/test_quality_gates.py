@@ -86,15 +86,15 @@ class QualityGateTests(unittest.TestCase):
         """
         get_settings.cache_clear()
 
-    def test_all_frozen_scenarios_have_multiformat_data(self) -> None:
-        """验证所有冻结的业务场景包含多格式数据文件。
+    def test_contract_runtime_scenario_has_multiformat_data(self) -> None:
+        """验证唯一合同运行场景包含当前解析栈支持的多格式样例。
 
-        调用顺序：pytest/unittest 测试入口 -> QualityGateTests.test_all_frozen_scenarios_have_multiformat_data()。
+        调用顺序：pytest/unittest 测试入口 -> QualityGateTests.test_contract_runtime_scenario_has_multiformat_data()。
         """
         required_suffixes = {".md", ".csv", ".xlsx", ".docx", ".pptx", ".pdf"}
         scenario_roots = sorted(path for path in Path("scenarios").iterdir() if (path / "scenario.toml").exists())
 
-        self.assertEqual(len(scenario_roots), 8)
+        self.assertEqual([path.name for path in scenario_roots], ["tender_contract_risk"])
         for scenario_root in scenario_roots:
             data_root = scenario_root / "data"
             suffixes = {path.suffix.lower() for path in data_root.rglob("*") if path.is_file()}
@@ -215,7 +215,10 @@ class QualityGateTests(unittest.TestCase):
                 metadata={"source": "account", "file_name": "member_offboarding.md"},
             ),
         ]
-        report = detect_faq_document_conflicts("scenarios/saas_support/faq.csv", docs)
+        report = detect_faq_document_conflicts(
+            "tests/fixtures/compatibility/scenarios/saas_support/faq.csv",
+            docs,
+        )
         missing_account = [
             item
             for item in report["items"]

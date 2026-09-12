@@ -1,5 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
+import re
 
 from qa_core.evaluation.compare_runs import compare_reports
 from qa_core.evaluation.gate import evaluate_gate
@@ -122,7 +123,8 @@ def test_runner_writes_versioned_json_and_markdown(tmp_path):
     report, json_path, markdown_path = run_benchmark(manifest_path=DEFAULT_MANIFEST, suite="fast", output_root=tmp_path)
     assert json_path.is_file() and markdown_path.is_file()
     assert report["metadata"]["run_mode"] == "offline"
-    assert report["metadata"]["app_version"].startswith("source-sha256:")
+    app_version = report["metadata"]["app_version"]
+    assert app_version.startswith("source-sha256:") or re.fullmatch(r"[0-9a-f]{40}", app_version)
     assert report["dataset"]["real_uat_count"] == 0
 
 

@@ -10,7 +10,7 @@
 #   2. 禁止 `try import A except ImportError import B` 这类隐藏兼容分支；
 #   3. 禁止恢复旧版 `mysql_qa` / `rag_qa` / `legacy` 等运行入口；
 #   4. 禁止代码重新引用旧链路模块；
-#   5. 禁止恢复旧版 static/docs 自定义讲义导出链路；
+#   5. 禁止恢复旧版 static/docs 自定义文档导出链路；
 #   6. requirements.txt 必须锁定直接依赖版本，避免本地环境漂移。
 #   7. 一期主链路不引入 LlamaIndex，避免两套 RAG 框架概念混用。
 #   8. MySQL DDL 只能出现在 runtime_schema.sql，业务 Store 不做隐式建表。
@@ -31,7 +31,7 @@
 2. 禁止 `try import A except ImportError import B` 这类隐藏兼容分支；
 3. 禁止恢复旧版 `mysql_qa` / `rag_qa` / `legacy` 等运行入口；
 4. 禁止代码重新引用旧链路模块；
-5. 禁止恢复旧版 static/docs 自定义讲义导出链路；
+5. 禁止恢复旧版 static/docs 自定义文档导出链路；
 6. requirements.txt 必须锁定直接依赖版本，避免本地环境漂移；
 7. 一期主链路不引入 LlamaIndex，避免两套 RAG 框架概念混用；
 8. MySQL DDL 只能出现在 runtime_schema.sql，业务 Store 不做隐式建表；
@@ -85,14 +85,12 @@ LEGACY_PATHS = (
     "convert_md_to_html.py",
     "tests/test_websocket_stream.py",
     "docker-compose.milvus.yml",
-    "docs/animation/codealong-code-flow.html",
-    "site/animation/codealong-code-flow.html",
 )
 FORBIDDEN_ARTIFACT_PATHS = (
     "scripts/reports",
     "scripts/ocr/reports",
 )
-SOURCE_ARTIFACT_SCAN_DIRS = ("qa_core", "scripts", "tests", "codealong", "mini-rag")
+SOURCE_ARTIFACT_SCAN_DIRS = ("qa_core", "scripts", "tests")
 LEGACY_IMPORT_PREFIXES = ("mysql_qa", "rag_qa", "legacy")
 FORBIDDEN_ENV_TOKENS = (
     "EDURAG_USE_LEGACY_CONFIG",
@@ -135,21 +133,9 @@ ALLOWED_RUNTIME_IMPORTS: dict[str, set[str]] = {
         "qa_core.retrieval.models",
     },
 }
-PUBLIC_DOC_FORBIDDEN_FRAGMENTS = (
-    "跟敲",
-    "codealong/chapters/",
-    "codealong\\chapters\\",
-    "codealong-code-flow.html",
-    "跟敲代码全链路",
-    "全链路图",
-    "本章运行目录",
-    "建议按下面顺序打开文件",
-    "demo_retrieval_plan.py",
-    "代码闭环地图",
-    "本章代码闭环",
-)
-PUBLIC_DOC_SCAN_DIRS = ("docs", "site")
-PUBLIC_TEXT_SCAN_DIRS = ("README.md", "CHANGELOG.md", "VERSIONING.md", "docs", "site", "codealong", "scripts", "mini-rag", "qa_core")
+PUBLIC_DOC_FORBIDDEN_FRAGMENTS = ("跟敲", "本章运行目录", "建议按下面顺序打开文件")
+PUBLIC_DOC_SCAN_DIRS = ("docs",)
+PUBLIC_TEXT_SCAN_DIRS = ("README.md", "CHANGELOG.md", "VERSIONING.md", "docs", "scripts", "qa_core")
 FORBIDDEN_ROLE_TERMS = (
     "\u5b66\u751f",
     "\u8001\u5e08",
@@ -181,23 +167,14 @@ SCENARIO_REQUIRED_FIELDS = (
 SUPPORTED_SCENARIO_DOC_SUFFIXES = {".txt", ".md", ".pdf", ".docx", ".doc", ".ppt", ".pptx", ".csv", ".xlsx", ".xls"}
 REQUIRED_SCENARIO_DOC_SUFFIXES = {".md", ".csv", ".xlsx", ".docx", ".pptx", ".pdf"}
 FROZEN_SCENARIO_IDS = {
-    "enterprise_knowledge",
-    "saas_support",
-    "equipment_ops",
-    "compliance_qa",
-    "cross_border_risk",
     "tender_contract_risk",
-    "insurance_claims",
-    "engineering_project_qa",
 }
 SCHEMA_DDL_ALLOWED_FILES: set[str] = set()
 SCHEMA_BOOTSTRAP_ALLOWED_FILES = {
     "qa_core/storage/bootstrap.py",
 }
 SCHEMA_TEXT_EXEMPT_FILES = {
-    "scripts/course/check_codealong_alignment.py",
     "scripts/check_project_guardrails.py",
-    "scripts/course/export_rag_architecture_comparison_xmind.py",
 }
 DDL_PATTERNS = (
     r"\bCREATE\s+TABLE\b",
@@ -723,7 +700,7 @@ def check_intent_retrieval_boundary() -> list[GuardrailIssue]:
             )
 
     for path in iter_python_files():
-        if path.name in {"check_project_guardrails.py", "check_codealong_alignment.py"}:
+        if path.name == "check_project_guardrails.py":
             continue
         source = path.read_text(encoding="utf-8")
         fragment = "direct_intent and direct_intent.direct_answer"
@@ -907,11 +884,6 @@ def check_env_file_contract() -> list[GuardrailIssue]:
     if ".env.compose.example" in parsed and ".env.compose" in parsed:
         if set(parsed[".env.compose"].keys()) != set(parsed[".env.compose.example"].keys()):
             issues.append(GuardrailIssue(PROJECT_ROOT / ".env.compose", 1, ".env.compose 的配置项必须与 .env.compose.example 保持一致。"))
-    course_outline = PROJECT_ROOT / "docs" / "course-outline.md"
-    if course_outline.exists():
-        text = course_outline.read_text(encoding="utf-8")
-        if "`docker compose ps`" in text:
-            issues.append(GuardrailIssue(course_outline, 1, "课程大纲中的 Compose 验收命令必须显式使用 --env-file .env.compose。"))
     return issues
 
 
@@ -950,7 +922,7 @@ def check_scenario_packages() -> list[GuardrailIssue]:
     issues: list[GuardrailIssue] = []
     scenario_root = PROJECT_ROOT / "scenarios"
     if not scenario_root.exists():
-        return [GuardrailIssue(scenario_root, 1, "scenarios 目录不存在，无法加载多业务场景配置。")]
+        return [GuardrailIssue(scenario_root, 1, "scenarios 目录不存在，无法加载合同场景配置。")]
 
     faq_collections: Counter[str] = Counter()
     doc_collections: Counter[str] = Counter()

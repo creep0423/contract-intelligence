@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 
 from qa_core.indexing.source_normalization import normalize_faq_source
 from qa_core.intent.classifier import classify_direct_intent, classify_intent, infer_source
 from qa_core.intent.question_category import infer_question_category
 from qa_core.pipeline.query_input import normalize_user_query
 from qa_core.scenarios.boundary import detect_scenario_boundary, detect_source_boundary, rank_source_matches, score_source_map
-from qa_core.scenarios.registry import ScenarioDefinition, get_scenario_registry
+from qa_core.scenarios.registry import ScenarioDefinition, ScenarioRegistry, get_scenario_registry
+
+
+RUNTIME_SCENARIO_ROOT = Path(__file__).resolve().parents[1] / "scenarios"
 
 
 class QuestionCategoryTests(unittest.TestCase):
@@ -55,8 +59,9 @@ class ScenarioRegistryTests(unittest.TestCase):
 
     def test_contract_intelligence_exposes_only_contract_runtime_scenario(self) -> None:
         """历史配置可离线复用，但生产运行时只允许合同场景。"""
+        runtime_registry = ScenarioRegistry(RUNTIME_SCENARIO_ROOT)
         self.assertEqual(
-            [scenario.scenario_id for scenario in get_scenario_registry().list_runtime_scenarios()],
+            [scenario.scenario_id for scenario in runtime_registry.list_scenarios()],
             ["tender_contract_risk"],
         )
 

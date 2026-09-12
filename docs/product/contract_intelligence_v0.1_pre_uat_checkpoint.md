@@ -2,10 +2,12 @@
 
 ## Checkpoint Metadata
 
-- Date: 2026-09-10 (Asia/Shanghai)
-- Git status: `NOT_A_GIT_REPOSITORY`
-- Commit: Not created
-- Tag: Not created
+- Date: 2026-09-11 (Asia/Shanghai)
+- Repository: `Contract Intelligence`
+- Git status: `GIT_REPOSITORY_CREATED`
+- Commit: `7513d80e9d89fef5a8f4ef3c2cd7609c1b996611`
+- Tag: `contract-intelligence-v0.1-pre-uat`
+- Remote: Not configured
 - Next phase: Real UAT Readiness Audit
 
 ## Current Status
@@ -28,22 +30,18 @@
 - `.gitignore`
 - `.dockerignore`
 
-由于当前目录不是 Git repository，上述新增/修改分类来自已完成任务的变更范围，不是 Git working tree diff 的结果。
+上述文件已经纳入 `contract-intelligence-v0.1-pre-uat` Git 基线。后续变更应以该
+commit/tag 为可追溯起点，不改写该基线。
 
 ## File Integrity
 
-以下 SHA-256 用于在没有 Git commit/tag 的情况下复核本次手工 checkpoint：
-
-```text
-acf693b85af3d9fff55bb26175e85a16cf2f4b238a9e814c43d5a2f94d018729  docs/product/real_uat_dataset_spec_v1.0.md
-d8f3136d9f853aa2f742b410222d3a020ed26494fda03854ba1e982a6c1a2804  docs/product/gold_annotation_guideline_v1.0.md
-930c95e49a9c27bbdf9631752fb293da60aff12713b948875c6c3160743a3462  .gitignore
-fd11ca10c9ff5c709c4e91f47d7ca80e9c348cddf7a42b69188ab13e32edee3b  .dockerignore
-```
+该 checkpoint 由 Git commit 和 repository tag 标识。使用
+`git show contract-intelligence-v0.1-pre-uat` 可复核基线内容，不再依赖手工文件哈希。
 
 ## Limitations
 
-本报告是手工 checkpoint，不等同于不可变 Git commit，也没有可验证的父版本历史。未执行 `git init`、未创建或修改 remote、未提交、未打 tag、未 push。
+该仓库是没有导入旧工程历史的独立 Git repository。基线已经提交并打 tag，但没有配置
+remote，也没有 push。当前清理变更必须经过人工 review 后另行提交，不移动或覆盖本 tag。
 
 ## Recommendation
 

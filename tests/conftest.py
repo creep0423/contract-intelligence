@@ -9,6 +9,7 @@ import pytest
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+COMPATIBILITY_SCENARIO_ROOT = PROJECT_ROOT / "tests" / "fixtures" / "compatibility" / "scenarios"
 
 
 def _load_private_test_env() -> None:
@@ -25,6 +26,8 @@ def _load_private_test_env() -> None:
 
 
 _load_private_test_env()
+# 历史场景只服务兼容性测试，不能重新进入产品运行时的 scenarios/ 目录。
+os.environ["SCENARIO_CONFIG_DIR"] = str(COMPATIBILITY_SCENARIO_ROOT)
 MYSQL_TEST_ENABLED = os.getenv("CONTRACT_TEST_MYSQL_ENABLED", "").strip() == "1"
 if MYSQL_TEST_ENABLED:
     database = os.getenv("TEST_MYSQL_DATABASE", "").strip()

@@ -186,7 +186,7 @@ class MySqlMetadataStoreTests(unittest.TestCase):
 
         调用顺序：pytest/unittest 测试入口 -> MySqlMetadataStoreTests.test_index_manifest_uses_mysql_records()。
         """
-        path = Path("scenarios/enterprise_knowledge/data/hr_data/onboarding.md")
+        path = Path("tests/fixtures/compatibility/scenarios/enterprise_knowledge/onboarding.md")
         self.manifest.update(
             "hr",
             path,
