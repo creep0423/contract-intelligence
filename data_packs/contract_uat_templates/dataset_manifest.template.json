@@ -1,0 +1,21 @@
+{
+  "dataset_name": "Contract Intelligence Industrial Equipment Real UAT",
+  "dataset_version": "industrial-equipment-uat-v1.0.0",
+  "source_type": "real_sanitized",
+  "parent_domain": "manufacturing_supply_chain",
+  "phase_1_icp": "industrial_equipment_manufacturers_50_300_employees",
+  "planned_case_count": 20,
+  "contract_type_minimums": {
+    "equipment_purchase": 8,
+    "equipment_sales": 8
+  },
+  "flexible_case_count": 4,
+  "amendment_coverage_minimum": 4,
+  "complexity_distribution": {
+    "SIMPLE": 4,
+    "MEDIUM": 8,
+    "COMPLEX": 6,
+    "HIGH": 2
+  },
+  "case_ids": []
+}

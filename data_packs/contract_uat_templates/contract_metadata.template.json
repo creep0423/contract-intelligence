@@ -1,0 +1,19 @@
+{
+  "contract_id": "CI-CONTRACT-000001",
+  "dataset_version": "industrial-equipment-uat-v1.0.0",
+  "source_type": "real_sanitized",
+  "parent_domain": "manufacturing_supply_chain",
+  "industry_segment": "industrial_equipment_manufacturing",
+  "contract_type": "equipment_purchase",
+  "company_role": "buyer",
+  "contract_version": "v1",
+  "language": "zh-CN",
+  "document_count": 1,
+  "related_documents": [],
+  "complexity": "MEDIUM",
+  "has_amendment": false,
+  "has_tables": false,
+  "sanitization_status": "PENDING",
+  "annotation_status": "NOT_STARTED",
+  "review_status": "NOT_STARTED"
+}

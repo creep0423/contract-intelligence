@@ -1,0 +1,13 @@
+{
+  "annotation_id": "CI-ANNOTATION-000001",
+  "contract_id": "CI-CONTRACT-000001",
+  "dataset_version": "industrial-equipment-uat-v1.0.0",
+  "annotation_status": "NOT_STARTED",
+  "review_status": "NOT_STARTED",
+  "primary_reviewer_id": "REVIEWER-001",
+  "secondary_reviewer_id": null,
+  "adjudicator_id": null,
+  "adjudication_result": null,
+  "gold_frozen_at": null,
+  "notes": ""
+}
