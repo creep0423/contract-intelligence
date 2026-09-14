@@ -193,6 +193,57 @@ def test_contract_chunking_keeps_clause_metadata_and_parent_trace():
     assert {item.metadata["clause_no"] for item in chunks} >= {"1.1", "1.2"}
 
 
+def test_contract_chunk_ids_are_unique_and_stable_for_repeated_occurrences():
+    base_metadata = {
+        "is_contract_document": True,
+        "doc_id": "synthetic-contract-doc",
+        "scenario_id": "tender_contract_risk",
+        "kb_version": "synthetic-v1",
+        "embedding_model_version": "bge-m3",
+        "chunk_schema_version": "v1",
+        "file_type": ".pdf",
+    }
+    documents = [
+        Document(page_content="重复页眉", metadata={**base_metadata, "page_index": 0}),
+        Document(page_content="重复页眉", metadata={**base_metadata, "page_index": 1}),
+    ]
+
+    first_chunks, first_ids = split_contract_documents(documents)
+    second_chunks, second_ids = split_contract_documents(documents)
+
+    assert [item.page_content for item in first_chunks] == ["重复页眉", "重复页眉"]
+    assert len(first_ids) == len(set(first_ids)) == 2
+    assert first_ids == second_ids
+    assert [item.page_content for item in first_chunks] == [item.page_content for item in second_chunks]
+    assert [item.metadata["page_number"] for item in first_chunks] == [1, 2]
+    assert all(item.metadata["parent_occurrence"] for item in first_chunks)
+    assert all(item.metadata["chunk_occurrence"] for item in first_chunks)
+
+
+def test_contract_chunk_ids_disambiguate_repeated_blocks_on_one_page():
+    source = Document(
+        page_content="1.1 重复条款\n相同内容。\n1.1 重复条款\n相同内容。",
+        metadata={
+            "is_contract_document": True,
+            "page_index": 0,
+            "doc_id": "synthetic-repeated-blocks",
+            "scenario_id": "tender_contract_risk",
+            "kb_version": "synthetic-v1",
+            "embedding_model_version": "bge-m3",
+            "chunk_schema_version": "v1",
+            "file_type": ".pdf",
+        },
+    )
+
+    chunks, ids = split_contract_documents([source])
+
+    assert len(chunks) == len(ids) == 2
+    assert chunks[0].page_content == chunks[1].page_content
+    assert len(set(ids)) == 2
+    assert all(item.metadata["page_number"] == 1 for item in chunks)
+    assert all(item.metadata["clause_no"] == "1.1" for item in chunks)
+
+
 def test_contract_access_is_tenant_and_role_scoped():
     record = {"tenant_id": "tenant-a", "visibility": "private", "allowed_roles": ["legal"]}
     assert can_access_contract(record, ContractAccessContext(tenant_id="tenant-a", visibility="private", user_roles=["legal"]))

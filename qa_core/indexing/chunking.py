@@ -9,7 +9,7 @@
 设计决策：
 - 表格行和已复核 OCR 文本不经过父子切分——它们已经是治理后的完整证据单元。
 - Markdown 文件先通过标题切分器结构化（按 #/##/### 分层），再进入递归切分。
-- chunk_id 和 parent_id 由内容稳定哈希生成，相同内容产生相同 id，支持增量重建。
+- chunk_id 和 parent_id 由内容及稳定来源位置共同生成，同一 occurrence 重跑保持相同 id。
 
 依赖分层：
 - langchain_text_splitters：MarkdownHeaderTextSplitter、RecursiveCharacterTextSplitter。
@@ -122,11 +122,11 @@ def split_contract_documents(documents: list[Document]) -> tuple[list[Document],
     )
     chunks: list[Document] = []
     ids: list[str] = []
-    for doc in documents:
+    for document_index, doc in enumerate(documents):
         blocks = _contract_structural_blocks(doc.page_content)
         if not blocks:
             blocks = [("", "", doc.page_content)]
-        for section, clause_number, clause_text in blocks:
+        for block_index, (section, clause_number, clause_text) in enumerate(blocks):
             if not clause_text.strip():
                 continue
             base_metadata = {
@@ -142,11 +142,20 @@ def split_contract_documents(documents: list[Document]) -> tuple[list[Document],
             parent_docs = parent_splitter.split_documents(
                 [Document(page_content=clause_text, metadata=base_metadata)]
             )
-            for parent_doc in parent_docs:
+            for parent_index, parent_doc in enumerate(parent_docs):
                 parent_content = parent_doc.page_content.strip()
                 child_docs = child_splitter.split_documents([parent_doc])
-                for child_doc in child_docs:
-                    metadata = {**child_doc.metadata, "parent_content": parent_content}
+                parent_occurrence = (
+                    f"document:{document_index}:page:{base_metadata['page_number']}:"
+                    f"block:{block_index}:parent:{parent_index}"
+                )
+                for child_index, child_doc in enumerate(child_docs):
+                    metadata = {
+                        **child_doc.metadata,
+                        "parent_content": parent_content,
+                        "parent_occurrence": parent_occurrence,
+                        "chunk_occurrence": f"{parent_occurrence}:child:{child_index}",
+                    }
                     parent_id, chunk_id = chunk_identity(child_doc.page_content, metadata)
                     metadata.update({"parent_id": parent_id, "parent_chunk_id": parent_id, "chunk_id": chunk_id})
                     chunks.append(Document(page_content=child_doc.page_content, metadata=metadata))
@@ -154,11 +163,13 @@ def split_contract_documents(documents: list[Document]) -> tuple[list[Document],
     return chunks, ids
 
 def chunk_identity(page_content: str, metadata: dict) -> tuple[str, str]:
-    """基于正文和标准元数据生成 parent_id 与 chunk_id。
+    """基于正文、标准元数据和可选稳定 occurrence 生成 parent_id 与 chunk_id。
 
     调用顺序：入库脚本或索引服务 -> chunk_identity()。
     """
     parent_content = str(metadata.get("parent_content") or page_content or "").strip()
+    parent_occurrence = str(metadata.get("parent_occurrence") or "")
+    chunk_occurrence = str(metadata.get("chunk_occurrence") or "")
     if is_table_metadata(metadata):
         # 表格行的 parent_id 额外包含 table_id、sheet_name、row_number，确保同一张表的同一行
         # 在多次入库时 id 稳定，且不同行的 chunk 不会混淆；行列关系由 table_id + row_number 唯一锁定
@@ -171,10 +182,11 @@ def chunk_identity(page_content: str, metadata: dict) -> tuple[str, str]:
             metadata.get("table_id"),
             metadata.get("sheet_name"),
             metadata.get("row_number"),
+            parent_occurrence,
             parent_content,
         )
-        # 表格行的子块 id 只基于 parent_id + parent_content 生成，因为表格行不会进一步切分子块
-        chunk_id = stable_hash(parent_id, parent_content)
+        # 表格行通常不再切分；可选 occurrence 仍用于区分不同来源位置上的重复行。
+        chunk_id = stable_hash(parent_id, chunk_occurrence, parent_content)
         return parent_id, chunk_id
 
     parent_id = stable_hash(
@@ -183,11 +195,12 @@ def chunk_identity(page_content: str, metadata: dict) -> tuple[str, str]:
         metadata.get("embedding_model_version"),
         metadata.get("chunk_schema_version"),
         metadata.get("doc_id"),
+        parent_occurrence,
         parent_content,
     )
-    # 普通文档的 chunk_id 使用子块自身的 page_content（而非 parent_content）参与 hash，
-    # 使得同一父块下不同子块拥有不同 chunk_id
-    chunk_id = stable_hash(parent_id, page_content)
+    # 子块正文和稳定 occurrence 同时参与 hash：正文保持内容可追溯，occurrence 区分
+    # 同一父块或不同页面上文本完全一致的真实出现位置。
+    chunk_id = stable_hash(parent_id, chunk_occurrence, page_content)
     return parent_id, chunk_id
 
 
