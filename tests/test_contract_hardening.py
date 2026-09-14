@@ -55,7 +55,7 @@ from qa_core.contracts.service import ContractService, validate_contract_upload
 from qa_core.contracts import service as contract_service_module
 from qa_core.contracts.store import ContractStore
 from qa_core.contracts.store import _analysis_payload, _versioned_obligation_id
-from qa_core.contracts.structured_tasks import StructuredTaskRunner
+from qa_core.contracts.structured_tasks import StructuredOutputError, StructuredTaskRunner
 from qa_core.config.settings import Settings
 from qa_core.contracts.time_rules import add_business_days, parse_date, parse_time_rule, resolve_due_date
 from qa_core.governance.data_scope import DataScope
@@ -864,6 +864,64 @@ def test_core_llm_stage_failure_never_becomes_success(failed_component, error_ty
     assert store.failed == f"{expected_stage}:{error_type.__name__}"
 
 
+def _structured_runner_with_response(monkeypatch, response):
+    class Structured:
+        def invoke(self, messages):
+            return response
+
+    class Llm:
+        def with_structured_output(self, *args, **kwargs):
+            assert kwargs == {"method": "function_calling", "include_raw": True}
+            return Structured()
+
+    monkeypatch.setattr("qa_core.contracts.structured_tasks.get_chat_model", lambda streaming=False: Llm())
+    return StructuredTaskRunner()
+
+
+def test_structured_task_runner_returns_valid_parsed_model(monkeypatch):
+    expected = BasicExtractionOutput()
+    runner = _structured_runner_with_response(
+        monkeypatch,
+        {"raw": SimpleNamespace(tool_calls=[], invalid_tool_calls=[]), "parsed": expected, "parsing_error": None},
+    )
+
+    assert runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data") is expected
+
+
+def test_structured_task_runner_handles_include_raw_envelope_with_mapping(monkeypatch):
+    runner = _structured_runner_with_response(
+        monkeypatch,
+        {
+            "raw": SimpleNamespace(tool_calls=[{"name": "BasicExtractionOutput"}], invalid_tool_calls=[]),
+            "parsed": {"basic_info": {}},
+            "parsing_error": None,
+        },
+    )
+
+    result = runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
+
+    assert isinstance(result, BasicExtractionOutput)
+
+
+def test_structured_task_runner_recovers_qwen_single_trailing_brace(monkeypatch):
+    arguments = BasicExtractionOutput().model_dump_json() + "}"
+    runner = _structured_runner_with_response(
+        monkeypatch,
+        {
+            "raw": SimpleNamespace(
+                tool_calls=[],
+                invalid_tool_calls=[{"name": "BasicExtractionOutput", "args": arguments}],
+            ),
+            "parsed": None,
+            "parsing_error": None,
+        },
+    )
+
+    result = runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
+
+    assert isinstance(result, BasicExtractionOutput)
+
+
 def test_structured_task_runner_rejects_malformed_model_output(monkeypatch):
     class Structured:
         def invoke(self, messages):
@@ -873,8 +931,98 @@ def test_structured_task_runner_rejects_malformed_model_output(monkeypatch):
         def with_structured_output(self, *args, **kwargs): return Structured()
 
     monkeypatch.setattr("qa_core.contracts.structured_tasks.get_chat_model", lambda streaming=False: Llm())
-    with pytest.raises(RuntimeError, match="结构化输出解析失败"):
+    with pytest.raises(StructuredOutputError, match="结构化输出解析失败") as caught:
         StructuredTaskRunner().invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
+    assert caught.value.reason == "LANGCHAIN_PARSING_ERROR"
+    assert "malformed" not in str(caught.value)
+
+
+def test_structured_parsing_error_marks_analysis_failed_without_partial_persistence(monkeypatch, caplog):
+    sensitive_marker = "SYNTHETIC_RAW_OUTPUT_MARKER"
+    runner = _structured_runner_with_response(
+        monkeypatch,
+        {
+            "raw": SimpleNamespace(tool_calls=[], invalid_tool_calls=[], content=sensitive_marker),
+            "parsed": None,
+            "parsing_error": ValueError(sensitive_marker),
+        },
+    )
+
+    class Store:
+        failed = None
+        extraction_saved = False
+        result_saved = False
+
+        def create_analysis_run(self, *args, **kwargs):
+            return "run-structured-error"
+
+        def save_analysis_extraction(self, *args):
+            self.extraction_saved = True
+
+        def save_analysis_result(self, *args, **kwargs):
+            self.result_saved = True
+
+        def fail_analysis(self, run_id, contract_id, error_summary):
+            self.failed = error_summary
+
+    class Retriever:
+        def retrieve(self, context, task):
+            return [Document(page_content="合成合同事实", metadata={"chunk_id": "synthetic-1"})]
+
+    store = Store()
+    service = ContractAnalysisService(store, retriever=Retriever(), runner=runner)
+
+    with pytest.raises(StructuredOutputError):
+        service.analyze({
+            "id": "contract-a", "dataset_id": "contract:contract-a", "tenant_id": "tenant-a",
+            "visibility": "private", "allowed_roles": ["legal"], "scenario_id": "tender_contract_risk",
+        })
+
+    assert store.failed == "extraction:StructuredOutputError"
+    assert store.extraction_saved is False
+    assert store.result_saved is False
+    assert sensitive_marker not in caplog.text
+
+
+def test_structured_task_runner_rejects_unrecognized_invalid_tool_arguments(monkeypatch):
+    runner = _structured_runner_with_response(
+        monkeypatch,
+        {
+            "raw": SimpleNamespace(
+                tool_calls=[],
+                invalid_tool_calls=[{"name": "BasicExtractionOutput", "args": '{"basic_info": }'}],
+            ),
+            "parsed": None,
+            "parsing_error": None,
+        },
+    )
+
+    with pytest.raises(StructuredOutputError) as caught:
+        runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
+
+    assert caught.value.reason == "TOOL_CALL_ARGUMENT_PARSE_FAILED"
+
+
+def test_structured_task_runner_reports_pydantic_failure_without_values(monkeypatch):
+    sensitive_value = "SYNTHETIC_SECRET_MARKER"
+    runner = _structured_runner_with_response(
+        monkeypatch,
+        {
+            "raw": SimpleNamespace(tool_calls=[], invalid_tool_calls=[]),
+            "parsed": {"basic_info": sensitive_value},
+            "parsing_error": None,
+        },
+    )
+
+    with pytest.raises(StructuredOutputError) as caught:
+        runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
+
+    error = caught.value
+    assert error.reason == "PYDANTIC_VALIDATION_FAILED"
+    assert error.validation_issues[0].path == ("basic_info",)
+    assert error.validation_issues[0].error_type == "model_type"
+    assert error.validation_issues[0].received_type == "str"
+    assert sensitive_value not in str(error)
 
 
 def test_milvus_manifest_failure_attempts_compensation_and_marks_document_failed(tmp_path, monkeypatch, caplog):
