@@ -54,7 +54,7 @@ class StructuredTaskRunner:
         if parsed is not None:
             return parsed if isinstance(parsed, schema) else _validate(schema, parsed)
 
-        recovered = _recover_single_trailing_brace(schema, response)
+        recovered = _recover_redundant_trailing_braces(schema, response)
         if recovered is not None:
             return recovered
 
@@ -82,11 +82,12 @@ def _validate(schema: type[T], payload: Any) -> T:
         ) from None
 
 
-def _recover_single_trailing_brace(schema: type[T], response: Any) -> T | None:
-    """兼容 qwen-plus 偶发在完整 tool arguments 后多返回一个 ``}``。
+def _recover_redundant_trailing_braces(schema: type[T], response: Any) -> T | None:
+    """兼容 qwen-plus 偶发在完整 tool arguments 后多返回右花括号。
 
-    这里只接受一个可独立解码、且唯一剩余字符恰为右花括号的对象。其他截断、
-    拼接、多余文本或一般 JSON 错误继续失败，避免把兼容处理扩展成模糊修复器。
+    这里只接受一个可独立解码的顶层对象，且剩余非空白字符必须全部是冗余
+    ``}``。截断、拼接、多余文本、内部 JSON 错误及歧义 tool call 继续失败，
+    避免把 provider 传输兼容扩展成内容修复器。
     """
 
     if not isinstance(response, Mapping):
@@ -104,11 +105,17 @@ def _recover_single_trailing_brace(schema: type[T], response: Any) -> T | None:
     if not isinstance(arguments, str):
         return None
 
-    candidate = arguments.strip()
+    candidate = arguments.lstrip()
     try:
         payload, end = json.JSONDecoder().raw_decode(candidate)
     except (TypeError, ValueError):
         return None
-    if candidate[end:] != "}" or not isinstance(payload, Mapping):
+    suffix = candidate[end:]
+    non_whitespace_suffix = "".join(character for character in suffix if not character.isspace())
+    if (
+        not isinstance(payload, Mapping)
+        or not non_whitespace_suffix
+        or any(character != "}" for character in non_whitespace_suffix)
+    ):
         return None
     return _validate(schema, payload)

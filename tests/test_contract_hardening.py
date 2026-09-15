@@ -1,5 +1,6 @@
 import asyncio
 import io
+import json
 import zipfile
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -920,6 +921,132 @@ def test_structured_task_runner_recovers_qwen_single_trailing_brace(monkeypatch)
     result = runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
 
     assert isinstance(result, BasicExtractionOutput)
+
+
+@pytest.mark.parametrize("suffix", ["}}", "}}}", " }\n}\t}"])
+def test_structured_task_runner_recovers_only_redundant_trailing_braces(monkeypatch, suffix):
+    expected = BasicExtractionOutput()
+    arguments = expected.model_dump_json() + suffix
+    runner = _structured_runner_with_response(
+        monkeypatch,
+        {
+            "raw": SimpleNamespace(
+                tool_calls=[],
+                invalid_tool_calls=[{"name": "BasicExtractionOutput", "args": arguments}],
+            ),
+            "parsed": None,
+            "parsing_error": None,
+        },
+    )
+
+    assert runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data") == expected
+
+
+def test_structured_task_runner_accepts_standard_json_trailing_whitespace(monkeypatch):
+    expected = BasicExtractionOutput()
+    runner = _structured_runner_with_response(
+        monkeypatch,
+        {
+            "raw": SimpleNamespace(tool_calls=[{"name": "BasicExtractionOutput"}], invalid_tool_calls=[]),
+            "parsed": json.loads(expected.model_dump_json() + " \n\t"),
+            "parsing_error": None,
+        },
+    )
+
+    assert runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data") == expected
+
+
+@pytest.mark.parametrize(
+    "arguments",
+    [
+        BasicExtractionOutput().model_dump_json() + BasicExtractionOutput().model_dump_json(),
+        BasicExtractionOutput().model_dump_json() + "unexpected",
+        '{"basic_info": {',
+        '{"basic_info": {} "payment_terms": []}',
+        '{"basic_info": {"contract_name": "unterminated}}',
+        '{"basic_info": {"contract_name": "invalid\\escape"}}',
+    ],
+)
+def test_structured_task_runner_rejects_unsafe_json_repairs(monkeypatch, arguments):
+    runner = _structured_runner_with_response(
+        monkeypatch,
+        {
+            "raw": SimpleNamespace(
+                tool_calls=[],
+                invalid_tool_calls=[{"name": "BasicExtractionOutput", "args": arguments}],
+            ),
+            "parsed": None,
+            "parsing_error": None,
+        },
+    )
+
+    with pytest.raises(StructuredOutputError) as caught:
+        runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
+
+    assert caught.value.reason == "TOOL_CALL_ARGUMENT_PARSE_FAILED"
+
+
+def test_structured_task_runner_rejects_recoverable_payload_from_wrong_tool(monkeypatch):
+    runner = _structured_runner_with_response(
+        monkeypatch,
+        {
+            "raw": SimpleNamespace(
+                tool_calls=[],
+                invalid_tool_calls=[
+                    {"name": "TermsExtractionOutput", "args": BasicExtractionOutput().model_dump_json() + "}"},
+                ],
+            ),
+            "parsed": None,
+            "parsing_error": None,
+        },
+    )
+
+    with pytest.raises(StructuredOutputError) as caught:
+        runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
+
+    assert caught.value.reason == "TOOL_CALL_ARGUMENT_PARSE_FAILED"
+
+
+def test_structured_task_runner_rejects_multiple_invalid_tool_calls(monkeypatch):
+    arguments = BasicExtractionOutput().model_dump_json() + "}"
+    runner = _structured_runner_with_response(
+        monkeypatch,
+        {
+            "raw": SimpleNamespace(
+                tool_calls=[],
+                invalid_tool_calls=[
+                    {"name": "BasicExtractionOutput", "args": arguments},
+                    {"name": "BasicExtractionOutput", "args": arguments},
+                ],
+            ),
+            "parsed": None,
+            "parsing_error": None,
+        },
+    )
+
+    with pytest.raises(StructuredOutputError) as caught:
+        runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
+
+    assert caught.value.reason == "TOOL_CALL_ARGUMENT_PARSE_FAILED"
+
+
+def test_structured_task_runner_requires_pydantic_after_brace_recovery(monkeypatch):
+    runner = _structured_runner_with_response(
+        monkeypatch,
+        {
+            "raw": SimpleNamespace(
+                tool_calls=[],
+                invalid_tool_calls=[{"name": "BasicExtractionOutput", "args": '{"basic_info":"wrong"}}'}],
+            ),
+            "parsed": None,
+            "parsing_error": None,
+        },
+    )
+
+    with pytest.raises(StructuredOutputError) as caught:
+        runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
+
+    assert caught.value.reason == "PYDANTIC_VALIDATION_FAILED"
 
 
 def test_structured_task_runner_rejects_malformed_model_output(monkeypatch):
