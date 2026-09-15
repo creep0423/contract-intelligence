@@ -36,6 +36,7 @@ class ContractObligationService:
             return []
         output = self.runner.invoke(
             ObligationExtractionOutput,
+            task_name="obligation",
             system_prompt=OBLIGATION_EXTRACTION_SYSTEM_PROMPT,
             user_prompt=task_user_prompt(
                 contract_id=context.contract_id,

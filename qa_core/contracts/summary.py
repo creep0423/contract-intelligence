@@ -25,6 +25,7 @@ class ContractSummaryService:
         facts = result.model_dump(mode="json", exclude={"summary"}, exclude_none=True)
         output = self.runner.invoke(
             ContractSummaryOutput,
+            task_name="summary",
             system_prompt=SUMMARY_SYSTEM_PROMPT,
             user_prompt=task_user_prompt(
                 contract_id=context.contract_id,

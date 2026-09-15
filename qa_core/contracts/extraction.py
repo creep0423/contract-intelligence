@@ -63,6 +63,7 @@ class ContractExtractionService:
             return schema()
         output = self.runner.invoke(
             schema,
+            task_name=task,
             system_prompt=system_prompt,
             user_prompt=task_user_prompt(
                 contract_id=context.contract_id,

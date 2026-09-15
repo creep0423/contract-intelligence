@@ -35,6 +35,7 @@ class SemanticRiskAnalysisService:
         }
         output = self.runner.invoke(
             SemanticRiskOutput,
+            task_name="semantic_risk",
             system_prompt=SEMANTIC_RISK_SYSTEM_PROMPT,
             user_prompt=task_user_prompt(
                 contract_id=context.contract_id,

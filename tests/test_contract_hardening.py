@@ -50,6 +50,7 @@ from qa_core.contracts.schemas import (
     RiskStatus,
     SemanticRiskOutput,
     SourceEvidence,
+    TermsExtractionOutput,
 )
 from qa_core.contracts.semantic_risk import SemanticRiskAnalysisService
 from qa_core.contracts.service import ContractService, validate_contract_upload
@@ -879,6 +880,25 @@ def _structured_runner_with_response(monkeypatch, response):
     return StructuredTaskRunner()
 
 
+def _structured_runner_with_responses(monkeypatch, responses):
+    class Structured:
+        def __init__(self):
+            self.responses = iter(responses)
+
+        def invoke(self, messages):
+            return next(self.responses)
+
+    structured = Structured()
+
+    class Llm:
+        def with_structured_output(self, *args, **kwargs):
+            assert kwargs == {"method": "function_calling", "include_raw": True}
+            return structured
+
+    monkeypatch.setattr("qa_core.contracts.structured_tasks.get_chat_model", lambda streaming=False: Llm())
+    return StructuredTaskRunner()
+
+
 def test_structured_task_runner_returns_valid_parsed_model(monkeypatch):
     expected = BasicExtractionOutput()
     runner = _structured_runner_with_response(
@@ -886,7 +906,24 @@ def test_structured_task_runner_returns_valid_parsed_model(monkeypatch):
         {"raw": SimpleNamespace(tool_calls=[], invalid_tool_calls=[]), "parsed": expected, "parsing_error": None},
     )
 
-    assert runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data") is expected
+    assert runner.invoke(
+        BasicExtractionOutput,
+        task_name="basic",
+        system_prompt="system",
+        user_prompt="data",
+    ) is expected
+    assert runner.telemetry_snapshot() == runner.telemetry_snapshot().__class__(
+        structured_calls=1,
+        total_attempts=1,
+        normal_successes=1,
+        first_attempt_successes=1,
+        bounded_recovery_invocations=0,
+        bounded_recoveries=0,
+        provider_parse_retries=0,
+        retry_successes=0,
+        unrecoverable_failures=0,
+        pydantic_failures=0,
+    )
 
 
 def test_structured_task_runner_handles_include_raw_envelope_with_mapping(monkeypatch):
@@ -921,6 +958,38 @@ def test_structured_task_runner_recovers_qwen_single_trailing_brace(monkeypatch)
     result = runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
 
     assert isinstance(result, BasicExtractionOutput)
+    snapshot = runner.telemetry_snapshot()
+    assert snapshot.total_attempts == 1
+    assert snapshot.bounded_recoveries == 1
+    assert snapshot.provider_parse_retries == 0
+
+
+def test_structured_task_runner_recovery_is_generic_across_target_schemas(monkeypatch):
+    expected = TermsExtractionOutput()
+    runner = _structured_runner_with_response(
+        monkeypatch,
+        {
+            "raw": SimpleNamespace(
+                tool_calls=[],
+                invalid_tool_calls=[
+                    {"name": "TermsExtractionOutput", "args": expected.model_dump_json() + "}}"}
+                ],
+            ),
+            "parsed": None,
+            "parsing_error": ValueError("provider parser rejected trailing structure"),
+        },
+    )
+
+    assert runner.invoke(
+        TermsExtractionOutput,
+        task_name="commercial",
+        system_prompt="system",
+        user_prompt="data",
+    ) == expected
+    event = runner.telemetry_events()[0]
+    assert event.schema_name == "TermsExtractionOutput"
+    assert event.task_name == "commercial"
+    assert event.result == "RECOVERED"
 
 
 @pytest.mark.parametrize("suffix", ["}}", "}}}", " }\n}\t}"])
@@ -957,17 +1026,20 @@ def test_structured_task_runner_accepts_standard_json_trailing_whitespace(monkey
 
 
 @pytest.mark.parametrize(
-    "arguments",
+    ("arguments", "expected_reason"),
     [
-        BasicExtractionOutput().model_dump_json() + BasicExtractionOutput().model_dump_json(),
-        BasicExtractionOutput().model_dump_json() + "unexpected",
-        '{"basic_info": {',
-        '{"basic_info": {} "payment_terms": []}',
-        '{"basic_info": {"contract_name": "unterminated}}',
-        '{"basic_info": {"contract_name": "invalid\\escape"}}',
+        (
+            BasicExtractionOutput().model_dump_json() + BasicExtractionOutput().model_dump_json(),
+            "MULTIPLE_JSON_VALUES",
+        ),
+        (BasicExtractionOutput().model_dump_json() + "unexpected", "TOOL_CALL_ARGUMENT_PARSE_FAILED"),
+        ('{"basic_info": {', "TRUNCATED_JSON"),
+        ('{"basic_info": {} "payment_terms": []}', "INTERNAL_JSON_SYNTAX_ERROR"),
+        ('{"basic_info": {"contract_name": "unterminated}}', "TRUNCATED_JSON"),
+        ('{"basic_info": {"contract_name": "invalid\\escape"}}', "INTERNAL_JSON_SYNTAX_ERROR"),
     ],
 )
-def test_structured_task_runner_rejects_unsafe_json_repairs(monkeypatch, arguments):
+def test_structured_task_runner_rejects_unsafe_json_repairs(monkeypatch, arguments, expected_reason):
     runner = _structured_runner_with_response(
         monkeypatch,
         {
@@ -983,7 +1055,7 @@ def test_structured_task_runner_rejects_unsafe_json_repairs(monkeypatch, argumen
     with pytest.raises(StructuredOutputError) as caught:
         runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
 
-    assert caught.value.reason == "TOOL_CALL_ARGUMENT_PARSE_FAILED"
+    assert caught.value.reason == expected_reason
 
 
 def test_structured_task_runner_rejects_recoverable_payload_from_wrong_tool(monkeypatch):
@@ -1004,7 +1076,8 @@ def test_structured_task_runner_rejects_recoverable_payload_from_wrong_tool(monk
     with pytest.raises(StructuredOutputError) as caught:
         runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
 
-    assert caught.value.reason == "TOOL_CALL_ARGUMENT_PARSE_FAILED"
+    assert caught.value.reason == "WRONG_TOOL_SCHEMA"
+    assert runner.telemetry_snapshot().total_attempts == 1
 
 
 def test_structured_task_runner_rejects_multiple_invalid_tool_calls(monkeypatch):
@@ -1027,7 +1100,38 @@ def test_structured_task_runner_rejects_multiple_invalid_tool_calls(monkeypatch)
     with pytest.raises(StructuredOutputError) as caught:
         runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
 
-    assert caught.value.reason == "TOOL_CALL_ARGUMENT_PARSE_FAILED"
+    assert caught.value.reason == "MULTIPLE_AMBIGUOUS_TOOL_CALLS"
+    assert runner.telemetry_snapshot().total_attempts == 1
+
+
+@pytest.mark.parametrize(
+    "tool_calls",
+    [
+        [{"name": "UnexpectedOutput", "args": {}}],
+        [
+            {"name": "BasicExtractionOutput", "args": {}},
+            {"name": "BasicExtractionOutput", "args": {}},
+        ],
+    ],
+)
+def test_structured_task_runner_rejects_protocol_ambiguity_even_when_parsed_is_present(
+    monkeypatch,
+    tool_calls,
+):
+    runner = _structured_runner_with_response(
+        monkeypatch,
+        {
+            "raw": SimpleNamespace(tool_calls=tool_calls, invalid_tool_calls=[]),
+            "parsed": BasicExtractionOutput(),
+            "parsing_error": None,
+        },
+    )
+
+    with pytest.raises(StructuredOutputError) as caught:
+        runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
+
+    assert caught.value.reason in {"WRONG_TOOL_SCHEMA", "MULTIPLE_AMBIGUOUS_TOOL_CALLS"}
+    assert runner.telemetry_snapshot().total_attempts == 1
 
 
 def test_structured_task_runner_requires_pydantic_after_brace_recovery(monkeypatch):
@@ -1047,6 +1151,110 @@ def test_structured_task_runner_requires_pydantic_after_brace_recovery(monkeypat
         runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
 
     assert caught.value.reason == "PYDANTIC_VALIDATION_FAILED"
+    assert runner.telemetry_snapshot().total_attempts == 1
+
+
+def test_structured_task_runner_retries_one_provider_parse_failure_then_succeeds(monkeypatch):
+    expected = TermsExtractionOutput()
+    malformed = {
+        "raw": SimpleNamespace(
+            tool_calls=[],
+            invalid_tool_calls=[{"name": "TermsExtractionOutput", "args": '{"payment_terms": ['}],
+        ),
+        "parsed": None,
+        "parsing_error": ValueError("synthetic provider parse failure"),
+    }
+    success = {
+        "raw": SimpleNamespace(tool_calls=[], invalid_tool_calls=[]),
+        "parsed": expected,
+        "parsing_error": None,
+    }
+    runner = _structured_runner_with_responses(monkeypatch, [malformed, success])
+
+    assert runner.invoke(
+        TermsExtractionOutput,
+        task_name="commercial",
+        system_prompt="same-system",
+        user_prompt="same-data",
+    ) is expected
+    snapshot = runner.telemetry_snapshot()
+    assert snapshot.structured_calls == 1
+    assert snapshot.total_attempts == 2
+    assert snapshot.provider_parse_retries == 1
+    assert snapshot.retry_successes == 1
+    assert snapshot.unrecoverable_failures == 0
+
+
+def test_structured_task_runner_stops_after_two_provider_parse_failures(monkeypatch, caplog):
+    sensitive = "SYNTHETIC_COMPANY_CLAUSE_1000000"
+    malformed = {
+        "raw": SimpleNamespace(
+            tool_calls=[],
+            invalid_tool_calls=[
+                {"name": "BasicExtractionOutput", "args": '{"basic_info": "' + sensitive}
+            ],
+        ),
+        "parsed": None,
+        "parsing_error": ValueError(sensitive),
+    }
+    runner = _structured_runner_with_responses(monkeypatch, [malformed, malformed])
+
+    with pytest.raises(StructuredOutputError) as caught:
+        runner.invoke(
+            BasicExtractionOutput,
+            task_name="basic",
+            system_prompt="system",
+            user_prompt="data",
+        )
+
+    assert caught.value.reason == "TRUNCATED_JSON"
+    assert caught.value.diagnostic is not None
+    snapshot = runner.telemetry_snapshot()
+    assert snapshot.total_attempts == 2
+    assert snapshot.provider_parse_retries == 1
+    assert snapshot.unrecoverable_failures == 1
+    assert sensitive not in str(caught.value)
+    assert sensitive not in repr(runner.telemetry_events())
+    assert sensitive not in caplog.text
+
+
+def test_structured_task_runner_records_provider_invocation_error_without_retry_or_payload(
+    monkeypatch,
+    caplog,
+):
+    sensitive = "SYNTHETIC_PROVIDER_SECRET_MARKER"
+
+    class Structured:
+        calls = 0
+
+        def invoke(self, messages):
+            self.calls += 1
+            raise ConnectionError(sensitive)
+
+    structured = Structured()
+
+    class Llm:
+        def with_structured_output(self, *args, **kwargs):
+            return structured
+
+    monkeypatch.setattr("qa_core.contracts.structured_tasks.get_chat_model", lambda streaming=False: Llm())
+    runner = StructuredTaskRunner()
+
+    with pytest.raises(ConnectionError):
+        runner.invoke(
+            BasicExtractionOutput,
+            task_name="basic",
+            system_prompt="system",
+            user_prompt="data",
+        )
+
+    event = runner.telemetry_events()[0]
+    assert structured.calls == 1
+    assert event.error_category == "PROVIDER_INVOCATION_ERROR"
+    assert event.parsing_error_type == "ConnectionError"
+    assert event.terminal is True
+    assert sensitive not in repr(event)
+    assert sensitive not in caplog.text
 
 
 def test_structured_task_runner_rejects_malformed_model_output(monkeypatch):
@@ -1058,10 +1266,12 @@ def test_structured_task_runner_rejects_malformed_model_output(monkeypatch):
         def with_structured_output(self, *args, **kwargs): return Structured()
 
     monkeypatch.setattr("qa_core.contracts.structured_tasks.get_chat_model", lambda streaming=False: Llm())
+    runner = StructuredTaskRunner()
     with pytest.raises(StructuredOutputError, match="结构化输出解析失败") as caught:
-        StructuredTaskRunner().invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
-    assert caught.value.reason == "LANGCHAIN_PARSING_ERROR"
+        runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
+    assert caught.value.reason == "PROVIDER_EMPTY_OUTPUT"
     assert "malformed" not in str(caught.value)
+    assert runner.telemetry_snapshot().total_attempts == 2
 
 
 def test_structured_parsing_error_marks_analysis_failed_without_partial_persistence(monkeypatch, caplog):
@@ -1127,7 +1337,7 @@ def test_structured_task_runner_rejects_unrecognized_invalid_tool_arguments(monk
     with pytest.raises(StructuredOutputError) as caught:
         runner.invoke(BasicExtractionOutput, system_prompt="system", user_prompt="data")
 
-    assert caught.value.reason == "TOOL_CALL_ARGUMENT_PARSE_FAILED"
+    assert caught.value.reason == "TRUNCATED_JSON"
 
 
 def test_structured_task_runner_reports_pydantic_failure_without_values(monkeypatch):
@@ -1150,6 +1360,8 @@ def test_structured_task_runner_reports_pydantic_failure_without_values(monkeypa
     assert error.validation_issues[0].error_type == "model_type"
     assert error.validation_issues[0].received_type == "str"
     assert sensitive_value not in str(error)
+    assert runner.telemetry_snapshot().total_attempts == 1
+    assert runner.telemetry_snapshot().pydantic_failures == 1
 
 
 def test_milvus_manifest_failure_attempts_compensation_and_marks_document_failed(tmp_path, monkeypatch, caplog):
