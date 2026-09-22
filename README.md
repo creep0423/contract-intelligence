@@ -36,7 +36,7 @@ Contract Intelligence 是面向企业合同签后履约管理的证据驱动智�
 - MySQL / Redis
 - 原生 HTML/CSS/JavaScript
 
-`qa_core` 作为稳定的内部 Python package 保留。单场景运行配置仍使用兼容 ID `tender_contract_risk`，避免破坏已经持久化的集合、版本和分析数据。
+核心 Python package 为 `qa_core`。当前合同风险场景标识为 `tender_contract_risk`。
 
 ## Contract Intelligence Pipeline
 
@@ -145,11 +145,9 @@ python -m pip check
 docker compose -f docker-compose.contract-intelligence.yml --env-file .env.contract-intelligence config -q
 ```
 
-## Data Compatibility
+## Data Identifiers
 
-为保持已验证的数据协议，以下内部标识不重命名：`qa_core`、`tender_contract_risk`、合同 API/JSON Schema、MySQL 业务表、Milvus collection、`contract:<contract_id>` dataset namespace、Benchmark ID 和历史 artifact schema。
-
-新部署默认是 Clean Deployment，不自动复制任何既有 MySQL、Milvus、MinIO、Redis 或合同文件。未来如需迁移，必须先备份，并分别执行 row count、vector count、文件 checksum、引用和租户隔离验证；Redis 缓存建议不迁移并自然重建。
+当前内部标识包括 `qa_core`、`tender_contract_risk`、合同 API/JSON Schema、MySQL 业务表、Milvus collection、`contract:<contract_id>` dataset namespace、Benchmark ID 和 artifact schema。
 
 ## Limitations
 
