@@ -16,6 +16,7 @@ import time
 from collections import defaultdict, deque
 from collections.abc import Mapping
 from fastapi import Header, Request, WebSocket
+from qa_core.api.contract_demo_session import resolve_demo_contract_access
 from qa_core.contracts.schemas import ContractAccessContext
 from qa_core.api.error_handlers import raise_server_error, raise_too_many_requests, raise_unauthorized
 from qa_core.config.settings import TRUSTED_IDENTITY_ENVIRONMENTS, get_settings
@@ -124,7 +125,17 @@ def resolve_contract_access(
     x_user_roles: str | None = Header(default=None),
     x_contract_upstream_token: str | None = Header(default=None),
 ) -> ContractAccessContext:
-    """由统一可信上游入口解析 HTTP 合同身份，body/query 永不参与权限决策。"""
+    """由统一可信上游入口解析 HTTP 合同身份，body/query 永不参与权限决策。
+
+    未携带可信上游令牌时，允许非生产环境的演示会话以服务端配置的固定演示身份访问
+    （见 contract_demo_session）；一旦携带令牌，就只走可信上游校验，避免身份降级。
+
+    调用顺序：FastAPI 路由层 -> resolve_contract_access()。
+    """
+    if not _presented_upstream_token(x_contract_upstream_token):
+        demo_access = resolve_demo_contract_access(request)
+        if demo_access is not None:
+            return demo_access
     return _resolve_contract_access_headers(request.headers, x_contract_upstream_token)
 
 
@@ -134,10 +145,17 @@ def resolve_websocket_contract_access(websocket: WebSocket) -> ContractAccessCon
     allowed_origins = {str(item).rstrip("/") for item in settings.cors_allow_origins}
     if origin and "*" not in allowed_origins and origin not in allowed_origins:
         raise_unauthorized("WebSocket Origin 不受信任")
-    return _resolve_contract_access_headers(
-        websocket.headers,
-        websocket.headers.get("x-contract-upstream-token"),
-    )
+    presented_token = websocket.headers.get("x-contract-upstream-token")
+    if not _presented_upstream_token(presented_token):
+        demo_access = resolve_demo_contract_access(websocket)
+        if demo_access is not None:
+            return demo_access
+    return _resolve_contract_access_headers(websocket.headers, presented_token)
+
+
+def _presented_upstream_token(presented_token: str | None) -> bool:
+    """判断请求是否显式携带了可信上游令牌；携带即不允许回退到演示会话。"""
+    return bool(str(presented_token or "").strip())
 
 
 def _resolve_contract_access_headers(

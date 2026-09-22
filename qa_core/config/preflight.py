@@ -18,7 +18,7 @@ import importlib
 from pathlib import Path
 from urllib.parse import urlparse
 
-from qa_core.config.settings import TRUSTED_IDENTITY_ENVIRONMENTS, get_settings
+from qa_core.config.settings import DEMO_IDENTITY_ENVIRONMENTS, TRUSTED_IDENTITY_ENVIRONMENTS, get_settings
 from qa_core.governance.kb_versions import get_kb_version_store
 from qa_core.scenarios.registry import ACTIVE_SCENARIO_IDS, get_scenario_registry, resolve_scenario
 
@@ -44,6 +44,20 @@ def _is_placeholder(value: str | None) -> bool:
     # 统一转小写后依次与精确占位符值和模糊占位符标记匹配，覆盖"replace-with-real-key"等常见开发疏忽
     lower_value = normalized.lower()
     return lower_value in PLACEHOLDER_VALUES or any(marker in lower_value for marker in PLACEHOLDER_MARKERS)
+
+
+def require_demo_session_environment(settings) -> None:
+    """演示会话环境守卫：只有非生产环境允许开启浏览器演示会话。
+
+    该检查刻意放在前置校验里而不是请求处理里：生产配置一旦误开
+    CONTRACT_BROWSER_DEMO_SESSION，服务直接拒绝启动，不会带病收发流量。
+
+    调用顺序：validate_runtime_environment() -> require_demo_session_environment()。
+    """
+    if settings.contract_browser_demo_session and str(settings.env).lower() not in DEMO_IDENTITY_ENVIRONMENTS:
+        raise RuntimeError(
+            "CONTRACT_BROWSER_DEMO_SESSION 只允许在 dev/test/uat 环境启用；生产环境必须保持关闭。"
+        )
 
 
 def _require_tcp(name: str, host: str, port: int, timeout: float = 3.0) -> None:
@@ -160,6 +174,8 @@ def validate_runtime_environment() -> dict[str, object]:
         raise RuntimeError(
             "CONTRACT_TRUSTED_UPSTREAM_TOKEN 未配置。生产环境必须由可信网关注入合同身份上下文。"
         )
+    # 演示会话只在非生产环境可用：生产配置误开时直接拒绝启动，避免出现可在生产生效的身份旁路
+    require_demo_session_environment(settings)
     if settings.env.lower() in TRUSTED_IDENTITY_ENVIRONMENTS and "*" in settings.cors_allow_origins:
         raise RuntimeError("生产环境 CORS_ALLOW_ORIGINS 不得包含通配符 *")
 

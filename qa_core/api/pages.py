@@ -15,9 +15,10 @@ from __future__ import annotations
 from html import escape
 from pathlib import Path
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.responses import FileResponse, HTMLResponse
 
+from qa_core.api.contract_demo_session import DEMO_SESSION_COOKIE, issue_demo_session
 from qa_core.config.settings import get_settings
 from qa_core.llm.client import llm_runtime_status
 from qa_core.retrieval.factory import retrieval_warmup_state
@@ -76,23 +77,47 @@ def _branded_page(path: str) -> HTMLResponse:
         content = content.replace(marker, configured)
     return HTMLResponse(content, headers={"Cache-Control": "no-store"})
 
+def _demo_aware_page(path: str, request: Request) -> HTMLResponse:
+    """渲染工作台页面，并在启用演示会话时下发签名票据 Cookie。
+
+    演示会话只在非生产环境显式开启时生效（见 contract_demo_session），
+    浏览器拿到的是服务端签名票据，而不是可信上游令牌本身。
+
+    调用顺序：FastAPI 路由层 -> _demo_aware_page()。
+    """
+    response = _branded_page(path)
+    settings = get_settings()
+    ticket = issue_demo_session(settings)
+    if ticket:
+        response.set_cookie(
+            DEMO_SESSION_COOKIE,
+            ticket,
+            max_age=int(settings.contract_demo_session_ttl_seconds),
+            httponly=True,
+            samesite="lax",
+            secure=request.url.scheme == "https",
+            path="/",
+        )
+    return response
+
+
 @router.get("/")
-def read_root():
+def read_root(request: Request):
     """提供合同履约风控工作台，并禁止浏览器缓存旧版 JS。
 
     HTTP 路由 GET /
 
     返回：
-        禁止缓存的 index.html 页面。
+        禁止缓存的 index.html 页面；非生产环境启用演示会话时同时下发演示会话票据。
 
     调用顺序：FastAPI 路由层 -> read_root()。
     """
-    return _branded_page("static/contracts.html")
+    return _demo_aware_page("static/contracts.html", request)
 
 
 @router.get("/contracts")
-def read_contracts_page():
-    return _branded_page("static/contracts.html")
+def read_contracts_page(request: Request):
+    return _demo_aware_page("static/contracts.html", request)
 
 
 @router.get("/admin")

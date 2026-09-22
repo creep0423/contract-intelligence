@@ -28,6 +28,8 @@ PROJECT_ROOT = _discover_project_root()
 MODEL_ROOT = PROJECT_ROOT / "models"
 SUPPORTED_APP_ENVIRONMENTS = frozenset({"dev", "test", "uat", "staging", "prd", "prod", "production"})
 TRUSTED_IDENTITY_ENVIRONMENTS = frozenset({"uat", "staging", "prd", "prod", "production"})
+# 浏览器同源演示身份只允许在非生产环境启用：staging/prd/prod/production 必须走可信上游网关注入。
+DEMO_IDENTITY_ENVIRONMENTS = frozenset({"dev", "test", "uat"})
 
 
 def _resolve_project_relative_path(value: str) -> str:
@@ -157,6 +159,26 @@ class Settings(BaseSettings):
         default="",
         validation_alias="CONTRACT_TRUSTED_UPSTREAM_TOKEN",
     )
+    # 浏览器同源演示会话：只在非生产环境（dev/test/uat）显式开启时生效。
+    # 开启后页面响应会下发一个服务端签名的会话票据，浏览器凭该票据以固定的演示身份访问合同接口；
+    # 可信上游令牌始终留在服务端，任何情况下都不会发送到浏览器。
+    contract_browser_demo_session: bool = Field(
+        default=False,
+        validation_alias="CONTRACT_BROWSER_DEMO_SESSION",
+    )
+    contract_demo_tenant_id: str = Field(default="demo-tenant", validation_alias="CONTRACT_DEMO_TENANT_ID")
+    contract_demo_user_id: str = Field(default="demo-user", validation_alias="CONTRACT_DEMO_USER_ID")
+    contract_demo_visibility: str = Field(default="private", validation_alias="CONTRACT_DEMO_VISIBILITY")
+    contract_demo_user_roles: List[str] = Field(
+        default=["legal", "public"],
+        validation_alias="CONTRACT_DEMO_USER_ROLES",
+    )
+    contract_demo_session_ttl_seconds: int = Field(
+        default=8 * 60 * 60,
+        validation_alias="CONTRACT_DEMO_SESSION_TTL_SECONDS",
+        ge=60,
+        le=7 * 24 * 60 * 60,
+    )
     api_rate_limit_per_minute: int = Field(default=120, validation_alias="API_RATE_LIMIT_PER_MINUTE")
     # 检索参数由 retrieval_strategy 动态组合使用
     # faq_top_k/doc_top_k：初次召回的候选数量，足够大才能让 reranker 从充足池中选优；
@@ -251,7 +273,7 @@ class Settings(BaseSettings):
             raise ValueError("APP_ENV 必须是 dev、test、uat、staging、prd、prod 或 production")
         return normalized
 
-    @field_validator("cors_allow_origins", mode="before")
+    @field_validator("cors_allow_origins", "contract_demo_user_roles", mode="before")
     @classmethod
     def parse_list(cls, value):
         """解析环境变量中的 JSON 数组或逗号分隔列表配置。
