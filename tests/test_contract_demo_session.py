@@ -18,6 +18,7 @@ from starlette.websockets import WebSocket
 
 from qa_core.api import contract_demo_session
 from qa_core.api import dependencies as api_dependencies
+from qa_core.api import pages
 from qa_core.config.preflight import require_demo_session_environment
 from qa_core.config.settings import Settings
 
@@ -236,8 +237,6 @@ def test_protected_path_rejects_missing_identity_when_demo_session_disabled(monk
 
 
 def test_demo_page_sets_httponly_cookie_only_when_enabled(monkeypatch) -> None:
-    from qa_core.api import pages
-
     enabled = _settings()
     monkeypatch.setattr(pages, "get_settings", lambda: enabled)
     response = pages._demo_aware_page("static/contracts.html", _request())
