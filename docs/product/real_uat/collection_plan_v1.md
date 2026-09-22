@@ -1,5 +1,7 @@
 # Industrial Equipment Real UAT Collection Plan v1
 
+> **Status: FUTURE WORK / planned expansion.** 本文的 20-case 方案不是当前 Resume Release 的验收范围，也不表示 20 个 case 已完成。当前发布仅有 2 个 exploratory Real UAT cases，使用 AI-assisted provisional Silver reference，**NOT Human Gold**。
+
 ## Scope
 
 - Parent domain：Manufacturing / Supply Chain；
@@ -11,7 +13,7 @@
 
 ## Dataset size and composition
 
-首批固定为 **20 个 contract cases**，不是 20 个文件。一个 case 可以包含主合同、技术协议、质量协议、验收协议、补充协议和变更协议。
+未来扩展目标固定为 **20 个 contract cases**，不是 20 个文件。一个 case 可以包含主合同、技术协议、质量协议、验收协议、补充协议和变更协议。
 
 采购合同和销售合同各至少 8 个。剩余 4 个 case 在 dataset freeze 前根据覆盖缺口分配到采购或销售类别；最终每个 case 仍必须是 `equipment_purchase` 或 `equipment_sales`，总数保持 20。
 

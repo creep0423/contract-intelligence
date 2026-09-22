@@ -24,7 +24,7 @@ Contract Intelligence 是面向企业合同签后履约管理的证据驱动智�
 | 补充协议 | 多文档版本、独立引用和潜在冲突双证据 |
 | 合同问答 | Evidence-grounded 回答、无证据拒答、HTTP 历史与 WebSocket Streaming |
 | 安全 | tenant/dataset/visibility/role 数据域、IDOR 防护、可信上游身份、Prompt Injection Guard |
-| Benchmark | Gold Annotation、确定性 Matcher、Metrics、Gate、Run Comparison 和人工复核队列 |
+| Benchmark | 标注 Schema、确定性 Matcher、Metrics、Gate、Run Comparison 和人工复核队列 |
 
 ## Architecture
 
@@ -85,6 +85,8 @@ CONTRACT_PRODUCT_DESCRIPTOR=Contract Intelligence
 
 新部署使用独立的 [docker-compose.contract-intelligence.yml](docker-compose.contract-intelligence.yml)，不会读取、停止或删除其他部署资源。
 
+以下端口和命令描述通用/本地部署。受保护的 Resume Release Real UAT 是独立运行时：Compose project 为 `contract-intelligence-real-uat`，API 为 `http://127.0.0.1:28100`；不要将两者的 project、端口或数据卷混用。
+
 | 服务 | 默认宿主机地址 |
 | --- | --- |
 | Web/API | `http://127.0.0.1:18000` |
@@ -118,7 +120,9 @@ powershell -ExecutionPolicy Bypass -File scripts/deploy_contract_intelligence.ps
 - `benchmark_version`: `contract-benchmark-v1.0.0`
 - `dataset_version`: `small-synthetic-v1.0.0`
 - Synthetic cases: 10
-- Real UAT cases: 0
+- Current exploratory Real UAT cases: 2（不是大规模生产 Benchmark）
+- Current Real UAT reference: AI-assisted provisional Silver，**NOT Human Gold**
+- Exploratory aggregate: Obligation precision / recall / F1 = 90.9% / 20.4% / 33.3%；TimeRule fully correct = 5.0%
 
 ```powershell
 python -m qa_core.evaluation.validate_annotations --suite full
@@ -150,7 +154,10 @@ docker compose -f docker-compose.contract-intelligence.yml --env-file .env.contr
 ## Limitations
 
 - 真实模型分析需要有效供应商密钥并会产生费用；
-- 扫描 PDF 的 OCR 能力受当前解析后端和人工复核流程限制；
+- 当前 Resume Release 仅评估 machine-readable derived PDF input；OCR 不在范围内且未评估；
+- 多模态输入未评估；GraphRAG 未启用；Capability Router 不包含在本次发布中；
+- 当前 Real UAT 仅有 2 个 exploratory cases，参考标注是 AI-assisted provisional Silver，不是 Human Gold；
+- 当前 exploratory baseline 的 Obligation recall 与 TimeRule accuracy 仍然有限，上述低指标不得解释为生产质量；
 - 语义风险与合同冲突可能需要法务裁定；
 - 合成 Benchmark 不能代表真实合同分布；
 - 单机 Compose 不是高可用生产编排方案；

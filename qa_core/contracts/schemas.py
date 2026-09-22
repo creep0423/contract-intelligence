@@ -98,6 +98,15 @@ class TimeOffsetUnit(str, Enum):
     YEAR = "year"
 
 
+def _normalized_enum_token(value: object) -> str | None:
+    """Normalize enum spelling without broadening the accepted semantics."""
+    if isinstance(value, Enum):
+        value = value.value
+    if not isinstance(value, str):
+        return None
+    return re.sub(r"[\s-]+", "_", value.strip().lower())
+
+
 class TimeDirection(str, Enum):
     BEFORE = "before"
     AFTER = "after"
@@ -275,12 +284,45 @@ class TimeRule(ContractModel):
     periodic_expression: str | None = None
     original_text: str = ""
 
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_known_offset_units(cls, value):
+        """Canonicalize only units whose meaning can be preserved exactly."""
+        if not isinstance(value, dict) or "offset_unit" not in value:
+            return value
+        token = _normalized_enum_token(value.get("offset_unit"))
+        aliases = {
+            "day": TimeOffsetUnit.DAY.value,
+            "days": TimeOffsetUnit.DAY.value,
+            "month": TimeOffsetUnit.MONTH.value,
+            "months": TimeOffsetUnit.MONTH.value,
+            "year": TimeOffsetUnit.YEAR.value,
+            "years": TimeOffsetUnit.YEAR.value,
+        }
+        if token in aliases:
+            normalized = dict(value)
+            normalized["offset_unit"] = aliases[token]
+            return normalized
+        if token in {"week", "weeks"}:
+            offset = value.get("offset_value")
+            if isinstance(offset, int) and not isinstance(offset, bool):
+                normalized = dict(value)
+                normalized["offset_value"] = offset * 7
+                normalized["offset_unit"] = TimeOffsetUnit.DAY.value
+                return normalized
+        return value
+
 
 class ContractObligation(ContractModel):
     id: str | None = None
     contract_id: str | None = None
     obligation_type: ObligationType = ObligationType.OTHER
-    title: str
+    title: str = Field(
+        ...,
+        min_length=1,
+        max_length=255,
+        description="Required concise title that identifies this obligation; do not omit or return an empty value.",
+    )
     description: str = ""
     responsible_party: str | None = None
     beneficiary_party: str | None = None
@@ -298,6 +340,25 @@ class ContractObligation(ContractModel):
     source_evidence: SourceEvidence | None = None
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     needs_review: bool = False
+
+    @field_validator("obligation_type", mode="before")
+    @classmethod
+    def normalize_known_obligation_types(cls, value):
+        """Normalize canonical formatting and the proven monetary-penalty alias."""
+        token = _normalized_enum_token(value)
+        if token in {item.value for item in ObligationType}:
+            return token
+        if token == "penalty":
+            return ObligationType.PAYMENT.value
+        return value
+
+    @field_validator("title")
+    @classmethod
+    def reject_blank_title(cls, value: str) -> str:
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError("义务标题不能为空")
+        return cleaned
 
 
 class ContractRisk(ContractModel):

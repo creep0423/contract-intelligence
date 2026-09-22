@@ -23,6 +23,8 @@ powershell -ExecutionPolicy Bypass -File scripts/deploy_contract_intelligence.ps
 - Application: `http://127.0.0.1:18000/`
 - OpenAPI: `http://127.0.0.1:18000/api/docs`
 
+以上为通用/本地部署。受保护的 Resume Release Real UAT 使用独立 Compose project `contract-intelligence-real-uat`，API 为 `http://127.0.0.1:28100`。该受保护配置与通用部署的 project、端口和数据卷必须保持分离；单机 Compose 不代表生产高可用架构。
+
 ## Optional future data migration
 
 新环境不自动导入任何既有数据库、向量、对象、缓存或合同文件。需要迁移时，应在单独维护窗口中：

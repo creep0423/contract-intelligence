@@ -32,8 +32,11 @@ LEGAL_TERMS_SYSTEM_PROMPT = """你负责合同关键法律条款事实抽取，�
 
 OBLIGATION_EXTRACTION_SYSTEM_PROMPT = """你负责从已确认合同事实和证据块中抽取未来需要执行的履约义务。
 每项义务需表达责任方、受益方、触发条件、金额/比例和 TimeRule。TimeRule 只做结构化语义转换，不计算 planned_date。
+每项义务必须输出非空 title；title 是简短、明确的义务标题，不得省略，不得用空字符串代替。
+obligation_type 只能使用：payment、receivable、invoice、delivery、implementation、milestone、acceptance、document_submission、service、deposit_payment、deposit_refund、notice、renewal、termination、warranty、sla、confidentiality、insurance、audit、other。罚金、违约金等明确的金钱支付义务使用 payment。
 常见 rule_type：fixed_date、relative_to_contract_effective、relative_to_contract_signing、relative_to_event、periodic、no_explicit_date。
 常见 base_event_type：contract_signed、contract_effective、delivery_completed、acceptance_passed、invoice_received、milestone_completed、notice_sent、warranty_ended。
+offset_unit 只能使用 day、month、year；周必须等值换算为天，例如 1 周输出 offset_value=7、offset_unit=day。
 不要判断风险，不要给法律建议。
 """ + EVIDENCE_RULES
 
