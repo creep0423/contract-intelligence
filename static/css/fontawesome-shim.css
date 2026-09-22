@@ -75,3 +75,390 @@
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 14V4'/%3E%3Cpath d='M11 18l-1-4h8a2 2 0 0 0 2-2l-1-6a2 2 0 0 0-2-2H7'/%3E%3Cpath d='M7 14H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3'/%3E%3C/svg%3E");
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 14V4'/%3E%3Cpath d='M11 18l-1-4h8a2 2 0 0 0 2-2l-1-6a2 2 0 0 0-2-2H7'/%3E%3Cpath d='M7 14H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3'/%3E%3C/svg%3E");
 }
+
+/* ============================================================
+   线性图标（SVG 遮罩实现，颜色跟随 currentColor）
+   说明：以下规则位于文件末尾，会覆盖上方以文本字形模拟图标的规则，
+   使界面使用与产品一致的细线图标，且不引入任何外部字体依赖。
+   ============================================================ */
+.fa-shield-alt::before,
+.fa-shield-halved::before,
+.fa-shield::before,
+.fa-file-contract::before,
+.fa-file-lines::before,
+.fa-file-circle-check::before,
+.fa-folder-tree::before,
+.fa-upload::before,
+.fa-sync-alt::before,
+.fa-rotate-right::before,
+.fa-clock-rotate-left::before,
+.fa-history::before,
+.fa-times::before,
+.fa-xmark::before,
+.fa-search::before,
+.fa-magnifying-glass::before,
+.fa-quote-left::before,
+.fa-link::before,
+.fa-plus::before,
+.fa-clock::before,
+.fa-calendar::before,
+.fa-calendar-check::before,
+.fa-calendar-days::before,
+.fa-coins::before,
+.fa-money-bill::before,
+.fa-clipboard-check::before,
+.fa-list-check::before,
+.fa-tags::before,
+.fa-tag::before,
+.fa-brain::before,
+.fa-microchip::before,
+.fa-terminal::before,
+.fa-wave-square::before,
+.fa-database::before,
+.fa-bolt::before,
+.fa-code-branch::before,
+.fa-diagram-project::before,
+.fa-layer-group::before,
+.fa-plug::before,
+.fa-key::before,
+.fa-chart-line::before,
+.fa-chart-pie::before,
+.fa-circle-check::before,
+.fa-circle-exclamation::before,
+.fa-circle-info::before,
+.fa-triangle-exclamation::before,
+.fa-circle::before,
+.fa-circle-notch::before,
+.fa-check::before,
+.fa-user::before,
+.fa-sparkles::before,
+.fa-paper-plane::before,
+.fa-comment-dots::before,
+.fa-comments::before,
+.fa-chevron-right::before,
+.fa-copy::before,
+.fa-filter::before,
+.fa-sliders-h::before,
+.fa-stop::before,
+.fa-bars::before,
+.fa-arrow-left::before,
+.fa-arrow-right::before,
+.fa-trash::before,
+.fa-compass::before,
+.fa-building-shield::before,
+.fa-file-text::before {
+  content: "";
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  background: currentColor;
+  vertical-align: -0.125em;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.fa-spin::before {
+  -webkit-animation: fa-shim-spin 0.9s linear infinite;
+  animation: fa-shim-spin 0.9s linear infinite;
+}
+
+@-webkit-keyframes fa-shim-spin { to { -webkit-transform: rotate(360deg); } }
+@keyframes fa-shim-spin { to { transform: rotate(360deg); } }
+
+/* ---- 品牌与合同 ---- */
+.fa-shield-alt::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l7.5 3v6.2c0 4.3-3.1 7.3-7.5 8.8-4.4-1.5-7.5-4.5-7.5-8.8V6z'/%3E%3Cpath d='M9 12.3l2.2 2.2 4.2-4.6'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l7.5 3v6.2c0 4.3-3.1 7.3-7.5 8.8-4.4-1.5-7.5-4.5-7.5-8.8V6z'/%3E%3Cpath d='M9 12.3l2.2 2.2 4.2-4.6'/%3E%3C/svg%3E");
+}
+
+.fa-shield-halved::before,
+.fa-shield::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l7.5 3v6.2c0 4.3-3.1 7.3-7.5 8.8-4.4-1.5-7.5-4.5-7.5-8.8V6z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l7.5 3v6.2c0 4.3-3.1 7.3-7.5 8.8-4.4-1.5-7.5-4.5-7.5-8.8V6z'/%3E%3C/svg%3E");
+}
+
+.fa-file-contract::before,
+.fa-file-lines::before,
+.fa-file-text::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 3H7.5A2.5 2.5 0 0 0 5 5.5v13A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V8z'/%3E%3Cpath d='M14 3v5h5'/%3E%3Cpath d='M9 13h6'/%3E%3Cpath d='M9 17h4'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 3H7.5A2.5 2.5 0 0 0 5 5.5v13A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V8z'/%3E%3Cpath d='M14 3v5h5'/%3E%3Cpath d='M9 13h6'/%3E%3Cpath d='M9 17h4'/%3E%3C/svg%3E");
+}
+
+.fa-file-circle-check::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 3H7.5A2.5 2.5 0 0 0 5 5.5v13A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V8z'/%3E%3Cpath d='M14 3v5h5'/%3E%3Cpath d='M9 14.5l2 2 4-4'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 3H7.5A2.5 2.5 0 0 0 5 5.5v13A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V8z'/%3E%3Cpath d='M14 3v5h5'/%3E%3Cpath d='M9 14.5l2 2 4-4'/%3E%3C/svg%3E");
+}
+
+.fa-folder-tree::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='8.5' y='3' width='7' height='4.5' rx='1.3'/%3E%3Crect x='2.5' y='16.5' width='7' height='4.5' rx='1.3'/%3E%3Crect x='14.5' y='16.5' width='7' height='4.5' rx='1.3'/%3E%3Cpath d='M12 7.5v4'/%3E%3Cpath d='M6 16.5V14h12v2.5'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='8.5' y='3' width='7' height='4.5' rx='1.3'/%3E%3Crect x='2.5' y='16.5' width='7' height='4.5' rx='1.3'/%3E%3Crect x='14.5' y='16.5' width='7' height='4.5' rx='1.3'/%3E%3Cpath d='M12 7.5v4'/%3E%3Cpath d='M6 16.5V14h12v2.5'/%3E%3C/svg%3E");
+}
+
+/* ---- 操作 ---- */
+.fa-upload::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 16.5V4'/%3E%3Cpath d='M7.6 8.4L12 4l4.4 4.4'/%3E%3Cpath d='M4 16v2.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V16'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 16.5V4'/%3E%3Cpath d='M7.6 8.4L12 4l4.4 4.4'/%3E%3Cpath d='M4 16v2.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V16'/%3E%3C/svg%3E");
+}
+
+.fa-sync-alt::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 12a8 8 0 0 1-13.6 5.7'/%3E%3Cpath d='M4 12a8 8 0 0 1 13.6-5.7'/%3E%3Cpath d='M17.6 2.9v3.9h-3.9'/%3E%3Cpath d='M6.4 21.1v-3.9h3.9'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 12a8 8 0 0 1-13.6 5.7'/%3E%3Cpath d='M4 12a8 8 0 0 1 13.6-5.7'/%3E%3Cpath d='M17.6 2.9v3.9h-3.9'/%3E%3Cpath d='M6.4 21.1v-3.9h3.9'/%3E%3C/svg%3E");
+}
+
+.fa-rotate-right::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.5 12a8.5 8.5 0 1 1-2.6-6.1'/%3E%3Cpath d='M20.5 3.6V9H15'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.5 12a8.5 8.5 0 1 1-2.6-6.1'/%3E%3Cpath d='M20.5 3.6V9H15'/%3E%3C/svg%3E");
+}
+
+.fa-clock-rotate-left::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.6 12a8.4 8.4 0 1 0 2.9-6.3'/%3E%3Cpath d='M3.6 4v4h4'/%3E%3Cpath d='M12 8v4.3l3.2 1.8'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.6 12a8.4 8.4 0 1 0 2.9-6.3'/%3E%3Cpath d='M3.6 4v4h4'/%3E%3Cpath d='M12 8v4.3l3.2 1.8'/%3E%3C/svg%3E");
+}
+
+.fa-history::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.6 12a8.4 8.4 0 1 0 2.9-6.3'/%3E%3Cpath d='M3.6 4v4h4'/%3E%3Cpath d='M12 8v4.3l3.2 1.8'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.6 12a8.4 8.4 0 1 0 2.9-6.3'/%3E%3Cpath d='M3.6 4v4h4'/%3E%3Cpath d='M12 8v4.3l3.2 1.8'/%3E%3C/svg%3E");
+}
+
+.fa-times::before,
+.fa-xmark::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 6.5l11 11'/%3E%3Cpath d='M17.5 6.5l-11 11'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 6.5l11 11'/%3E%3Cpath d='M17.5 6.5l-11 11'/%3E%3C/svg%3E");
+}
+
+.fa-search::before,
+.fa-magnifying-glass::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10.8' cy='10.8' r='6.8'/%3E%3Cpath d='M15.8 15.8L20.5 20.5'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10.8' cy='10.8' r='6.8'/%3E%3Cpath d='M15.8 15.8L20.5 20.5'/%3E%3C/svg%3E");
+}
+
+.fa-plus::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5v14'/%3E%3Cpath d='M5 12h14'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5v14'/%3E%3Cpath d='M5 12h14'/%3E%3C/svg%3E");
+}
+
+.fa-chevron-right::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9.5 6l6 6-6 6'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9.5 6l6 6-6 6'/%3E%3C/svg%3E");
+}
+
+.fa-arrow-left::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19.5 12H4.5'/%3E%3Cpath d='M10.5 6L4.5 12l6 6'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19.5 12H4.5'/%3E%3Cpath d='M10.5 6L4.5 12l6 6'/%3E%3C/svg%3E");
+}
+
+.fa-arrow-right::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12h15'/%3E%3Cpath d='M13.5 6l6 6-6 6'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12h15'/%3E%3Cpath d='M13.5 6l6 6-6 6'/%3E%3C/svg%3E");
+}
+
+.fa-copy::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='11.5' height='11.5' rx='2.3'/%3E%3Cpath d='M15 5.3A2.3 2.3 0 0 0 12.7 3H5.8A2.3 2.3 0 0 0 3.5 5.3v6.9A2.3 2.3 0 0 0 5.8 14.5'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='11.5' height='11.5' rx='2.3'/%3E%3Cpath d='M15 5.3A2.3 2.3 0 0 0 12.7 3H5.8A2.3 2.3 0 0 0 3.5 5.3v6.9A2.3 2.3 0 0 0 5.8 14.5'/%3E%3C/svg%3E");
+}
+
+.fa-filter::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 5.5h17l-6.6 7.7V19l-3.8 2.2v-7.9z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 5.5h17l-6.6 7.7V19l-3.8 2.2v-7.9z'/%3E%3C/svg%3E");
+}
+
+.fa-sliders-h::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 7.5h9'/%3E%3Cpath d='M17 7.5h3.5'/%3E%3Ccircle cx='14.8' cy='7.5' r='2.2'/%3E%3Cpath d='M3.5 16.5h5'/%3E%3Cpath d='M13 16.5h7.5'/%3E%3Ccircle cx='10.8' cy='16.5' r='2.2'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 7.5h9'/%3E%3Cpath d='M17 7.5h3.5'/%3E%3Ccircle cx='14.8' cy='7.5' r='2.2'/%3E%3Cpath d='M3.5 16.5h5'/%3E%3Cpath d='M13 16.5h7.5'/%3E%3Ccircle cx='10.8' cy='16.5' r='2.2'/%3E%3C/svg%3E");
+}
+
+.fa-trash::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16'/%3E%3Cpath d='M9.5 7V5.4A1.4 1.4 0 0 1 10.9 4h2.2a1.4 1.4 0 0 1 1.4 1.4V7'/%3E%3Cpath d='M6.4 7l.9 12.1A2 2 0 0 0 9.3 21h5.4a2 2 0 0 0 2-1.9L17.6 7'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16'/%3E%3Cpath d='M9.5 7V5.4A1.4 1.4 0 0 1 10.9 4h2.2a1.4 1.4 0 0 1 1.4 1.4V7'/%3E%3Cpath d='M6.4 7l.9 12.1A2 2 0 0 0 9.3 21h5.4a2 2 0 0 0 2-1.9L17.6 7'/%3E%3C/svg%3E");
+}
+
+.fa-bars::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16'/%3E%3Cpath d='M4 12h16'/%3E%3Cpath d='M4 17h16'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16'/%3E%3Cpath d='M4 12h16'/%3E%3Cpath d='M4 17h16'/%3E%3C/svg%3E");
+}
+
+.fa-stop::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Crect x='6.5' y='6.5' width='11' height='11' rx='1.8'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Crect x='6.5' y='6.5' width='11' height='11' rx='1.8'/%3E%3C/svg%3E");
+}
+
+.fa-paper-plane::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.5 3.5L3 10.6l7.2 3.2 3.2 7.2z'/%3E%3Cpath d='M20.5 3.5L10.2 13.8'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.5 3.5L3 10.6l7.2 3.2 3.2 7.2z'/%3E%3Cpath d='M20.5 3.5L10.2 13.8'/%3E%3C/svg%3E");
+}
+
+/* ---- 证据与引用 ---- */
+.fa-quote-left::before,
+.fa-link::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.2 13.4a4.9 4.9 0 0 1-4.9 4.9'/%3E%3Cpath d='M13.8 10.6a4.9 4.9 0 0 1 4.9-4.9'/%3E%3Cpath d='M10.2 13.4V9.7a4.9 4.9 0 0 1 3.6-4.7'/%3E%3Cpath d='M13.8 10.6v3.7a4.9 4.9 0 0 1-3.6 4.7'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.2 13.4a4.9 4.9 0 0 1-4.9 4.9'/%3E%3Cpath d='M13.8 10.6a4.9 4.9 0 0 1 4.9-4.9'/%3E%3Cpath d='M10.2 13.4V9.7a4.9 4.9 0 0 1 3.6-4.7'/%3E%3Cpath d='M13.8 10.6v3.7a4.9 4.9 0 0 1-3.6 4.7'/%3E%3C/svg%3E");
+}
+
+/* ---- 状态与风险 ---- */
+.fa-circle-check::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M8.3 12.3l2.6 2.6 4.8-5.1'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M8.3 12.3l2.6 2.6 4.8-5.1'/%3E%3C/svg%3E");
+}
+
+.fa-circle-exclamation::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 7.4v5.2'/%3E%3Cpath d='M12 16.2h.01'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 7.4v5.2'/%3E%3Cpath d='M12 16.2h.01'/%3E%3C/svg%3E");
+}
+
+.fa-circle-info::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 11v5.4'/%3E%3Cpath d='M12 7.8h.01'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 11v5.4'/%3E%3Cpath d='M12 7.8h.01'/%3E%3C/svg%3E");
+}
+
+.fa-triangle-exclamation::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4.2l8.6 15.3H3.4z'/%3E%3Cpath d='M12 9.8v4.2'/%3E%3Cpath d='M12 17.2h.01'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4.2l8.6 15.3H3.4z'/%3E%3Cpath d='M12 9.8v4.2'/%3E%3Cpath d='M12 17.2h.01'/%3E%3C/svg%3E");
+}
+
+.fa-circle::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3C/svg%3E");
+}
+
+.fa-circle-notch::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.1' stroke-linecap='round'%3E%3Cpath d='M12 3.6a8.4 8.4 0 1 0 8.4 8.4'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.1' stroke-linecap='round'%3E%3Cpath d='M12 3.6a8.4 8.4 0 1 0 8.4 8.4'/%3E%3C/svg%3E");
+}
+
+.fa-check::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.6l4.6 4.6L19 7.4'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.6l4.6 4.6L19 7.4'/%3E%3C/svg%3E");
+}
+
+/* ---- 时间与里程碑 ---- */
+.fa-clock::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 7.3V12l3.3 1.9'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 7.3V12l3.3 1.9'/%3E%3C/svg%3E");
+}
+
+.fa-calendar::before,
+.fa-calendar-days::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15.5' rx='2.4'/%3E%3Cpath d='M8 3v4'/%3E%3Cpath d='M16 3v4'/%3E%3Cpath d='M3.5 10.4h17'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15.5' rx='2.4'/%3E%3Cpath d='M8 3v4'/%3E%3Cpath d='M16 3v4'/%3E%3Cpath d='M3.5 10.4h17'/%3E%3C/svg%3E");
+}
+
+.fa-calendar-check::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15.5' rx='2.4'/%3E%3Cpath d='M8 3v4'/%3E%3Cpath d='M16 3v4'/%3E%3Cpath d='M3.5 10.4h17'/%3E%3Cpath d='M9 15.4l2 2 4-4.2'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15.5' rx='2.4'/%3E%3Cpath d='M8 3v4'/%3E%3Cpath d='M16 3v4'/%3E%3Cpath d='M3.5 10.4h17'/%3E%3Cpath d='M9 15.4l2 2 4-4.2'/%3E%3C/svg%3E");
+}
+
+/* ---- 金额与业务 ---- */
+.fa-coins::before,
+.fa-money-bill::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2.5' y='6.5' width='19' height='11' rx='2.2'/%3E%3Ccircle cx='12' cy='12' r='2.5'/%3E%3Cpath d='M6.2 10v4'/%3E%3Cpath d='M17.8 10v4'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2.5' y='6.5' width='19' height='11' rx='2.2'/%3E%3Ccircle cx='12' cy='12' r='2.5'/%3E%3Cpath d='M6.2 10v4'/%3E%3Cpath d='M17.8 10v4'/%3E%3C/svg%3E");
+}
+
+.fa-clipboard-check::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='4.5' width='14' height='16.5' rx='2.4'/%3E%3Cpath d='M9.2 4.5V3.6A1.1 1.1 0 0 1 10.3 2.5h3.4a1.1 1.1 0 0 1 1.1 1.1v.9'/%3E%3Cpath d='M9.2 13.4l2 2 3.8-4'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='4.5' width='14' height='16.5' rx='2.4'/%3E%3Cpath d='M9.2 4.5V3.6A1.1 1.1 0 0 1 10.3 2.5h3.4a1.1 1.1 0 0 1 1.1 1.1v.9'/%3E%3Cpath d='M9.2 13.4l2 2 3.8-4'/%3E%3C/svg%3E");
+}
+
+.fa-list-check::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.6 6.4l1.6 1.6 3-3.2'/%3E%3Cpath d='M3.6 16.4l1.6 1.6 3-3.2'/%3E%3Cpath d='M11.5 6.6h9'/%3E%3Cpath d='M11.5 12h9'/%3E%3Cpath d='M11.5 17.4h6'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.6 6.4l1.6 1.6 3-3.2'/%3E%3Cpath d='M3.6 16.4l1.6 1.6 3-3.2'/%3E%3Cpath d='M11.5 6.6h9'/%3E%3Cpath d='M11.5 12h9'/%3E%3Cpath d='M11.5 17.4h6'/%3E%3C/svg%3E");
+}
+
+.fa-tags::before,
+.fa-tag::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.6 11.6V5.4A1.8 1.8 0 0 1 5.4 3.6h6.2l8.8 8.8-8 8z'/%3E%3Ccircle cx='7.9' cy='7.9' r='1.3'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.6 11.6V5.4A1.8 1.8 0 0 1 5.4 3.6h6.2l8.8 8.8-8 8z'/%3E%3Ccircle cx='7.9' cy='7.9' r='1.3'/%3E%3C/svg%3E");
+}
+
+/* ---- 系统与运行状态 ---- */
+.fa-brain::before,
+.fa-microchip::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='7' y='7' width='10' height='10' rx='2.2'/%3E%3Cpath d='M10 3.5V7'/%3E%3Cpath d='M14 3.5V7'/%3E%3Cpath d='M10 17v3.5'/%3E%3Cpath d='M14 17v3.5'/%3E%3Cpath d='M3.5 10H7'/%3E%3Cpath d='M3.5 14H7'/%3E%3Cpath d='M17 10h3.5'/%3E%3Cpath d='M17 14h3.5'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='7' y='7' width='10' height='10' rx='2.2'/%3E%3Cpath d='M10 3.5V7'/%3E%3Cpath d='M14 3.5V7'/%3E%3Cpath d='M10 17v3.5'/%3E%3Cpath d='M14 17v3.5'/%3E%3Cpath d='M3.5 10H7'/%3E%3Cpath d='M3.5 14H7'/%3E%3Cpath d='M17 10h3.5'/%3E%3Cpath d='M17 14h3.5'/%3E%3C/svg%3E");
+}
+
+.fa-terminal::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4.5' width='18' height='15' rx='2.4'/%3E%3Cpath d='M7.4 10l2.6 2.4-2.6 2.4'/%3E%3Cpath d='M12.6 15h4'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4.5' width='18' height='15' rx='2.4'/%3E%3Cpath d='M7.4 10l2.6 2.4-2.6 2.4'/%3E%3Cpath d='M12.6 15h4'/%3E%3C/svg%3E");
+}
+
+.fa-wave-square::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12.5h3.5V7.5h5v9h5v-9h4v5'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12.5h3.5V7.5h5v9h5v-9h4v5'/%3E%3C/svg%3E");
+}
+
+.fa-database::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cellipse cx='12' cy='5.8' rx='7.5' ry='2.9'/%3E%3Cpath d='M4.5 5.8v12.4c0 1.6 3.4 2.9 7.5 2.9s7.5-1.3 7.5-2.9V5.8'/%3E%3Cpath d='M4.5 12c0 1.6 3.4 2.9 7.5 2.9s7.5-1.3 7.5-2.9'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cellipse cx='12' cy='5.8' rx='7.5' ry='2.9'/%3E%3Cpath d='M4.5 5.8v12.4c0 1.6 3.4 2.9 7.5 2.9s7.5-1.3 7.5-2.9V5.8'/%3E%3Cpath d='M4.5 12c0 1.6 3.4 2.9 7.5 2.9s7.5-1.3 7.5-2.9'/%3E%3C/svg%3E");
+}
+
+.fa-bolt::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13.4 2.6L5.4 13.8h5.4l-1.2 7.6 8-11.2h-5.4z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13.4 2.6L5.4 13.8h5.4l-1.2 7.6 8-11.2h-5.4z'/%3E%3C/svg%3E");
+}
+
+.fa-code-branch::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='6.5' cy='5.6' r='2.4'/%3E%3Ccircle cx='17.5' cy='5.6' r='2.4'/%3E%3Ccircle cx='6.5' cy='18.4' r='2.4'/%3E%3Cpath d='M6.5 8v8'/%3E%3Cpath d='M17.5 8v2.1a3.4 3.4 0 0 1-3.4 3.4H9'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='6.5' cy='5.6' r='2.4'/%3E%3Ccircle cx='17.5' cy='5.6' r='2.4'/%3E%3Ccircle cx='6.5' cy='18.4' r='2.4'/%3E%3Cpath d='M6.5 8v8'/%3E%3Cpath d='M17.5 8v2.1a3.4 3.4 0 0 1-3.4 3.4H9'/%3E%3C/svg%3E");
+}
+
+.fa-diagram-project::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='8.8' y='2.6' width='6.4' height='4.6' rx='1.4'/%3E%3Crect x='2.4' y='16.8' width='6.4' height='4.6' rx='1.4'/%3E%3Crect x='15.2' y='16.8' width='6.4' height='4.6' rx='1.4'/%3E%3Cpath d='M12 7.2v4.2'/%3E%3Cpath d='M5.6 16.8v-2.2h12.8v2.2'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='8.8' y='2.6' width='6.4' height='4.6' rx='1.4'/%3E%3Crect x='2.4' y='16.8' width='6.4' height='4.6' rx='1.4'/%3E%3Crect x='15.2' y='16.8' width='6.4' height='4.6' rx='1.4'/%3E%3Cpath d='M12 7.2v4.2'/%3E%3Cpath d='M5.6 16.8v-2.2h12.8v2.2'/%3E%3C/svg%3E");
+}
+
+.fa-layer-group::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2.8l8.6 4.4L12 11.6 3.4 7.2z'/%3E%3Cpath d='M4.2 12.4L12 16.4l7.8-4'/%3E%3Cpath d='M4.2 16.6L12 20.6l7.8-4'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2.8l8.6 4.4L12 11.6 3.4 7.2z'/%3E%3Cpath d='M4.2 12.4L12 16.4l7.8-4'/%3E%3Cpath d='M4.2 16.6L12 20.6l7.8-4'/%3E%3C/svg%3E");
+}
+
+.fa-plug::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 2.8v5.4'/%3E%3Cpath d='M15 2.8v5.4'/%3E%3Cpath d='M6.4 8.2h11.2v3a5.6 5.6 0 0 1-11.2 0z'/%3E%3Cpath d='M12 16.8V21'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 2.8v5.4'/%3E%3Cpath d='M15 2.8v5.4'/%3E%3Cpath d='M6.4 8.2h11.2v3a5.6 5.6 0 0 1-11.2 0z'/%3E%3Cpath d='M12 16.8V21'/%3E%3C/svg%3E");
+}
+
+.fa-key::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='7.8' cy='15.8' r='3.6'/%3E%3Cpath d='M10.4 13.2L20.4 3.2'/%3E%3Cpath d='M17.2 6.4l2 2'/%3E%3Cpath d='M14.6 9l2 2'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='7.8' cy='15.8' r='3.6'/%3E%3Cpath d='M10.4 13.2L20.4 3.2'/%3E%3Cpath d='M17.2 6.4l2 2'/%3E%3Cpath d='M14.6 9l2 2'/%3E%3C/svg%3E");
+}
+
+.fa-chart-line::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 20.5h17'/%3E%3Cpath d='M5.5 16.2l4.2-5.4 3.4 2.9 5.6-7'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 20.5h17'/%3E%3Cpath d='M5.5 16.2l4.2-5.4 3.4 2.9 5.6-7'/%3E%3C/svg%3E");
+}
+
+.fa-chart-pie::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.6'/%3E%3Cpath d='M12 3.4V12h8.6'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.6'/%3E%3Cpath d='M12 3.4V12h8.6'/%3E%3C/svg%3E");
+}
+
+.fa-compass::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.6'/%3E%3Cpath d='M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.6'/%3E%3Cpath d='M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1z'/%3E%3C/svg%3E");
+}
+
+.fa-building-shield::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.4 20.6V5.4a1.8 1.8 0 0 1 1.8-1.8h6.6a1.8 1.8 0 0 1 1.8 1.8v15.2'/%3E%3Cpath d='M2.4 20.6h19.2'/%3E%3Cpath d='M7.4 8.2h2.2'/%3E%3Cpath d='M7.4 12h2.2'/%3E%3Cpath d='M15.4 10.2l4.4 1.6v3.2c0 2.4-1.8 4.1-4.4 4.9-2.6-.8-4.4-2.5-4.4-4.9v-3.2z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.4 20.6V5.4a1.8 1.8 0 0 1 1.8-1.8h6.6a1.8 1.8 0 0 1 1.8 1.8v15.2'/%3E%3Cpath d='M2.4 20.6h19.2'/%3E%3Cpath d='M7.4 8.2h2.2'/%3E%3Cpath d='M7.4 12h2.2'/%3E%3Cpath d='M15.4 10.2l4.4 1.6v3.2c0 2.4-1.8 4.1-4.4 4.9-2.6-.8-4.4-2.5-4.4-4.9v-3.2z'/%3E%3C/svg%3E");
+}
+
+/* ---- 问答与会话 ---- */
+.fa-comment-dots::before,
+.fa-comments::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.6 15.4a2 2 0 0 1-2 2h-10L4 21V5.4a2 2 0 0 1 2-2h12.6a2 2 0 0 1 2 2z'/%3E%3Cpath d='M8.6 10.6h.01'/%3E%3Cpath d='M12.3 10.6h.01'/%3E%3Cpath d='M16 10.6h.01'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.6 15.4a2 2 0 0 1-2 2h-10L4 21V5.4a2 2 0 0 1 2-2h12.6a2 2 0 0 1 2 2z'/%3E%3Cpath d='M8.6 10.6h.01'/%3E%3Cpath d='M12.3 10.6h.01'/%3E%3Cpath d='M16 10.6h.01'/%3E%3C/svg%3E");
+}
+
+.fa-user::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='8.2' r='3.9'/%3E%3Cpath d='M4.8 20.4c0-3.7 3.2-6.4 7.2-6.4s7.2 2.7 7.2 6.4'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='8.2' r='3.9'/%3E%3Cpath d='M4.8 20.4c0-3.7 3.2-6.4 7.2-6.4s7.2 2.7 7.2 6.4'/%3E%3C/svg%3E");
+}
+
+.fa-sparkles::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 3.2l1.8 4.4 4.4 1.8-4.4 1.8L11 15.6 9.2 11.2 4.8 9.4l4.4-1.8z'/%3E%3Cpath d='M17.8 14.6l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 3.2l1.8 4.4 4.4 1.8-4.4 1.8L11 15.6 9.2 11.2 4.8 9.4l4.4-1.8z'/%3E%3Cpath d='M17.8 14.6l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z'/%3E%3C/svg%3E");
+}
