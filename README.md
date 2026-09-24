@@ -163,3 +163,7 @@ docker compose -f docker-compose.contract-intelligence.yml --env-file .env.contr
 ## Repository Data Policy
 
 版本库只保存源码、配置模板、产品文档、测试和明确标记的 synthetic 数据。真实合同、私有 UAT/Gold、上传文件、日志、报告、Benchmark 运行产物、模型文件、数据库文件、证书和本地环境 secret 必须留在 Git 之外。提交前应复核 `.gitignore` 并执行 secret/private-data 扫描。
+
+## License
+
+本项目基于 [MIT License](LICENSE) 开源。
